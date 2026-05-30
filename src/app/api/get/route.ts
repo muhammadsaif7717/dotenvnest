@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import clientPromise, { dbName } from "@/lib/connectDb";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const client = await clientPromise;
