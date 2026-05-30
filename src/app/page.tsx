@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { postEnv, getAllEnv, deleteAEnv, updateAEnv, EnvProject } from "@/lib/api";
 
 type Tab = "post" | "envs";
@@ -88,6 +89,13 @@ const Icon = {
   Moon: () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  ),
+  Menu: () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   ),
 };
@@ -242,7 +250,7 @@ function UpdateModal({ env, onSave, onClose }: {
               >
                 <Icon.Upload />Upload .env file
               </button>
-              <input ref={fileInputRef} type="file" accept=".env,.txt" className="hidden" onChange={handleFileUpload} />
+              <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
             </div>
             <EnvEditor value={content} onChange={setContent} rows={12} />
           </div>
@@ -278,7 +286,15 @@ function UpdateModal({ env, onSave, onClose }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("post");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  };
 
   // Post tab
   const [projectName, setProjectName] = useState("");
@@ -406,6 +422,75 @@ export default function HomePage() {
         <UpdateModal env={updateTarget} onSave={handleUpdate} onClose={() => setUpdateTarget(null)} />
       )}
 
+      {/* Side Menu Overlay */}
+      <div 
+        className={`fixed inset-0 z-40 bg-black/20 dark:bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+          isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMenuOpen(false)}
+      />
+      
+      {/* Side Menu Panel */}
+      <div 
+        className={`fixed top-0 right-0 z-50 h-full w-72 bg-white dark:bg-[#0e0e0e] border-l border-zinc-200 dark:border-[#1a1a1a] shadow-2xl transform transition-transform duration-300 ease-in-out ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-[11px] tracking-[0.25em] uppercase text-zinc-400 dark:text-[#555] font-bold">
+              Menu
+            </span>
+            <button 
+              onClick={() => setIsMenuOpen(false)}
+              className="text-zinc-400 dark:text-[#444] hover:text-zinc-700 dark:hover:text-[#e8e8e8] transition-colors p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-[#1a1a1a]"
+            >
+              <Icon.X />
+            </button>
+          </div>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => {
+                setIsMenuOpen(false);
+                router.push("/account");
+              }}
+              className="flex items-center justify-between px-4 py-3.5 rounded-lg border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] text-zinc-600 dark:text-[#aaa] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333] transition-all text-sm font-semibold tracking-wide w-full"
+            >
+              <div className="flex items-center gap-3">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Account</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex items-center justify-between px-4 py-3.5 rounded-lg border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] text-zinc-600 dark:text-[#aaa] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333] transition-all text-sm font-semibold tracking-wide w-full"
+            >
+              <div className="flex items-center gap-3">
+                <span className="dark:hidden"><Icon.Moon /></span>
+                <span className="hidden dark:inline"><Icon.Sun /></span>
+                <span>Theme</span>
+              </div>
+              <span className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-[#555]">
+                <span className="dark:hidden">Dark</span>
+                <span className="hidden dark:inline">Light</span>
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                setIsMenuOpen(false);
+                handleLogout();
+              }}
+              className="flex items-center justify-between px-4 py-3.5 rounded-lg border border-red-100 dark:border-[#ff4444]/20 bg-red-50/50 dark:bg-[#ff4444]/5 text-red-500 dark:text-[#ff4444] hover:bg-red-50 dark:hover:bg-[#ff4444]/10 hover:border-red-200 dark:hover:border-[#ff4444]/30 transition-all text-sm font-semibold tracking-wide w-full"
+            >
+              <div className="flex items-center gap-3">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>Logout</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="relative max-w-3xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-10">
@@ -416,17 +501,17 @@ export default function HomePage() {
                 ENV VAULT
               </span>
             </div>
-            {/* Theme toggle */}
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] text-zinc-500 dark:text-[#555] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333] transition-all text-[11px] font-semibold tracking-wide"
-              title="Toggle theme"
-            >
-              <span className="dark:hidden"><Icon.Moon /></span>
-              <span className="hidden dark:inline"><Icon.Sun /></span>
-              <span className="dark:hidden">Dark</span>
-              <span className="hidden dark:inline">Light</span>
-            </button>
+            {/* Actions */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsMenuOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] text-zinc-500 dark:text-[#555] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333] transition-all text-[11px] font-semibold tracking-wide uppercase"
+                title="Open Menu"
+              >
+                <Icon.Menu />
+                Menu
+              </button>
+            </div>
           </div>
           <h1 className="text-4xl font-bold tracking-tight" style={{ fontFamily: "'Courier New', monospace" }}>
             <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env
@@ -483,7 +568,7 @@ export default function HomePage() {
                 >
                   <Icon.Upload />Upload .env file
                 </button>
-                <input ref={fileInputRef} type="file" accept=".env,.txt" className="hidden" onChange={handleFileUpload} />
+                <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
               </div>
               <EnvEditor value={envText} onChange={setEnvText} />
             </div>
