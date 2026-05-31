@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import clientPromise, { dbName } from "@/lib/connectDb";
 import { signJWT, verifyJWT } from "@/lib/session";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("envvault_session")?.value;

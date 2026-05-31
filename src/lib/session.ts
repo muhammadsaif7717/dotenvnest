@@ -3,7 +3,7 @@ import { SignJWT, jwtVerify } from "jose";
 const SESSION_SECRET = process.env.SESSION_SECRET || "envvault-secret";
 const encodedKey = new TextEncoder().encode(SESSION_SECRET);
 
-export async function signJWT(payload: any) {
+export async function signJWT(payload: Record<string, unknown>) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -17,7 +17,7 @@ export async function verifyJWT(token: string | undefined = "") {
       algorithms: ["HS256"],
     });
     return payload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

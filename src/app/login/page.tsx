@@ -3,16 +3,29 @@
 import { useState } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const Icon = {
   Sun: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="5" />
-      <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-      <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
     </svg>
   ),
   Moon: () => (
@@ -52,9 +65,10 @@ const Icon = {
     </svg>
   ),
   Warn: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-      <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   ),
 };
@@ -62,7 +76,7 @@ const Icon = {
 // ─── Spinner ──────────────────────────────────────────────────────────────────
 const Spinner = ({ color = "#0a0a0a" }: { color?: string }) => (
   <span
-    className="w-3.5 h-3.5 border-2 rounded-full animate-spin inline-block"
+    className="w-3.5 h-3.5 border-2 rounded-full animate-spin inline-block shrink-0"
     style={{ borderColor: `${color} ${color} ${color} transparent` }}
   />
 );
@@ -100,8 +114,6 @@ export default function LoginPage() {
         throw new Error(data?.message || "Invalid credentials.");
       }
 
-      // The backend has set the JWT cookie successfully.
-
       router.push("/");
       router.refresh();
     } catch (err: unknown) {
@@ -112,7 +124,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-zinc-800 dark:text-[#e8e8e8] font-mono transition-colors duration-200 flex flex-col">
+    <div className="min-h-screen min-h-dvh bg-white dark:bg-[#0a0a0a] text-zinc-800 dark:text-[#e8e8e8] font-mono transition-colors duration-200 flex flex-col">
+
       {/* Grid background – light */}
       <div
         className="fixed inset-0 pointer-events-none dark:hidden"
@@ -132,156 +145,178 @@ export default function LoginPage() {
         }}
       />
 
-      {/* Top bar */}
-      <div className="relative flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-[#141414]">
-        <div className="flex items-center gap-2.5">
+      {/* ── Top bar ─────────────────────────────────────────────────────────── */}
+      <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-100 dark:border-[#141414]">
+        {/* Logo */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-[#00ff88] animate-pulse" />
           <span
-            className="text-lg font-bold tracking-tight"
+            className="text-base sm:text-lg font-bold tracking-tight"
             style={{ fontFamily: "'Courier New', monospace" }}
           >
             <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env
-            <span className="text-zinc-300 dark:text-[#444] ml-2 text-sm font-semibold">manager</span>
+            <span className="text-zinc-300 dark:text-[#444] ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">
+              manager
+            </span>
           </span>
         </div>
 
-        <button
+        {/* Theme toggle – shadcn Button variant ghost */}
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] text-zinc-500 dark:text-[#555] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333] transition-all text-[11px] font-semibold tracking-wide"
+          className="flex items-center gap-1.5 sm:gap-2 h-8 px-2.5 sm:px-3 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 dark:text-[#555] border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333]"
           title="Toggle theme"
         >
           <span className="dark:hidden"><Icon.Moon /></span>
           <span className="hidden dark:inline"><Icon.Sun /></span>
-          <span className="dark:hidden">Dark</span>
-          <span className="hidden dark:inline">Light</span>
-        </button>
-      </div>
+          <span className="hidden xs:inline dark:hidden">Dark</span>
+          <span className="hidden xs:inline dark:inline">Light</span>
+        </Button>
+      </header>
 
-      {/* Center card */}
-      <div className="relative flex flex-1 items-center justify-center px-4 py-16">
-        <div className="w-full max-w-sm">
+      {/* ── Main content ────────────────────────────────────────────────────── */}
+      <main className="relative flex flex-1 items-center justify-center px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+        <div className="w-full max-w-xs sm:max-w-sm">
 
-          {/* Header */}
-          <div className="mb-8">
-            <p className="text-[11px] tracking-[0.25em] uppercase text-zinc-400 dark:text-[#555] font-semibold mb-2">
+          {/* Header text */}
+          <div className="mb-6 sm:mb-8">
+            <p className="text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-zinc-400 dark:text-[#555] font-semibold mb-1.5 sm:mb-2">
               Secure Access
             </p>
             <h1
-              className="text-3xl font-bold tracking-tight"
+              className="text-2xl sm:text-3xl font-bold tracking-tight"
               style={{ fontFamily: "'Courier New', monospace" }}
             >
               Sign in
             </h1>
-            <p className="text-zinc-400 dark:text-[#444] text-sm mt-1.5 tracking-wide">
+            <p className="text-zinc-400 dark:text-[#444] text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
               Access your env vault.
             </p>
           </div>
 
-          {/* Card */}
-          <div className="rounded-xl border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#0e0e0e] overflow-hidden shadow-sm">
+          {/* ── Card ────────────────────────────────────────────────────────── */}
+          <Card className="rounded-xl border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#0e0e0e] shadow-sm overflow-hidden p-0">
+
             {/* VSCode-style title bar */}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-100 dark:bg-[#0d0d0d] border-b border-zinc-200 dark:border-[#1e1e1e]">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
-              <span className="ml-2 text-[11px] text-zinc-400 dark:text-[#333] tracking-wider">
+            <CardHeader className="flex flex-row items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-zinc-100 dark:bg-[#0d0d0d] border-b border-zinc-200 dark:border-[#1e1e1e] space-y-0">
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56]" />
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffbd2e]" />
+              <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#27c93f]" />
+              <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-[11px] text-zinc-400 dark:text-[#333] tracking-wider">
                 auth.env
               </span>
-            </div>
+            </CardHeader>
 
             {/* Form body */}
-            <form onSubmit={handleLogin} className="p-6 space-y-5">
-              {/* Username */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
-                  Username
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333]">
-                    <Icon.User />
-                  </span>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => { setUsername(e.target.value); setError(null); }}
-                    placeholder="your_username"
-                    autoComplete="username"
-                    spellCheck={false}
-                    className="w-full bg-white dark:bg-[#111] border border-zinc-200 dark:border-[#1e1e1e] rounded-lg pl-9 pr-4 py-3 text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus:outline-none focus:border-emerald-500 dark:focus:border-[#00ff88] focus:ring-1 focus:ring-emerald-500/20 dark:focus:ring-[#00ff88]/20 transition-all"
-                    style={{ fontFamily: "'Courier New', monospace" }}
-                  />
-                </div>
-              </div>
+            <CardContent className="p-4 sm:p-6">
+              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
 
-              {/* Password */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
-                  Password
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333]">
-                    <Icon.Lock />
-                  </span>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(null); }}
-                    placeholder="••••••••••••"
-                    autoComplete="current-password"
-                    className="w-full bg-white dark:bg-[#111] border border-zinc-200 dark:border-[#1e1e1e] rounded-lg pl-9 pr-11 py-3 text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus:outline-none focus:border-emerald-500 dark:focus:border-[#00ff88] focus:ring-1 focus:ring-emerald-500/20 dark:focus:ring-[#00ff88]/20 transition-all"
-                    style={{ fontFamily: "'Courier New', monospace" }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#444] hover:text-zinc-500 dark:hover:text-[#888] transition-colors p-0.5"
-                  >
-                    {showPassword ? <Icon.EyeOff /> : <Icon.Eye />}
-                  </button>
+                {/* Username */}
+                <div className="space-y-1 sm:space-y-1.5">
+                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
+                      <Icon.User />
+                    </span>
+                    <Input
+                      type="text"
+                      value={username}
+                      onChange={(e) => { setUsername(e.target.value); setError(null); }}
+                      placeholder="your_username"
+                      autoComplete="username"
+                      spellCheck={false}
+                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
+                      style={{ fontFamily: "'Courier New', monospace" }}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Error */}
-              {error && (
-                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-red-50 dark:bg-[#ff4444]/8 border border-red-200 dark:border-[#ff4444]/25 text-red-500 dark:text-[#ff4444] text-xs">
-                  <Icon.Warn />
-                  <span>{error}</span>
+                {/* Password */}
+                <div className="space-y-1 sm:space-y-1.5">
+                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
+                      <Icon.Lock />
+                    </span>
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                      placeholder="••••••••••••"
+                      autoComplete="current-password"
+                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
+                      style={{ fontFamily: "'Courier New', monospace" }}
+                    />
+                    {/* Toggle password visibility */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowPassword((s) => !s)}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 text-zinc-300 dark:text-[#444] hover:text-zinc-500 dark:hover:text-[#888] hover:bg-transparent"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <Icon.EyeOff /> : <Icon.Eye />}
+                    </Button>
+                  </div>
                 </div>
-              )}
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={!canSubmit || isLoading}
-                className={`w-full flex items-center justify-center gap-2.5 py-3 rounded-lg text-sm font-bold tracking-widest uppercase transition-all duration-200 mt-1 ${
-                  !canSubmit
-                    ? "bg-zinc-100 dark:bg-[#111] text-zinc-300 dark:text-[#333] border border-zinc-200 dark:border-[#1e1e1e] cursor-not-allowed"
-                    : isLoading
-                    ? "bg-emerald-50 dark:bg-[#00ff88]/20 text-emerald-500 dark:text-[#00ff88] border border-emerald-300 dark:border-[#00ff88]/30 cursor-wait"
-                    : "bg-emerald-500 dark:bg-[#00ff88] text-white dark:text-[#0a0a0a] hover:bg-emerald-600 dark:hover:bg-[#00e07a] active:scale-[0.98]"
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <Spinner color={theme === "dark" ? "#00ff88" : "#10b981"} />
-                    Authenticating...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <Icon.ArrowRight />
-                  </>
+                {/* Error alert */}
+                {error && (
+                  <Alert className="py-2 px-3 sm:px-3.5 bg-red-50 dark:bg-[#ff4444]/8 border-red-200 dark:border-[#ff4444]/25 text-red-500 dark:text-[#ff4444]">
+                    <AlertDescription className="flex items-center gap-2 text-xs leading-snug">
+                      <Icon.Warn />
+                      <span>{error}</span>
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </button>
-            </form>
-          </div>
+
+                {/* Submit */}
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isLoading}
+                  className={`
+                    w-full flex items-center justify-center gap-2 sm:gap-2.5
+                    py-2.5 sm:py-3 h-auto rounded-lg
+                    text-xs sm:text-sm font-bold tracking-widest uppercase
+                    transition-all duration-200 mt-1
+                    ${!canSubmit
+                      ? "bg-zinc-100 dark:bg-[#111] text-zinc-300 dark:text-[#333] border border-zinc-200 dark:border-[#1e1e1e] cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-[#111]"
+                      : isLoading
+                      ? "bg-emerald-50 dark:bg-[#00ff88]/20 text-emerald-500 dark:text-[#00ff88] border border-emerald-300 dark:border-[#00ff88]/30 cursor-wait hover:bg-emerald-50 dark:hover:bg-[#00ff88]/20"
+                      : "bg-emerald-500 dark:bg-[#00ff88] text-white dark:text-[#0a0a0a] hover:bg-emerald-600 dark:hover:bg-[#00e07a] active:scale-[0.98]"
+                    }
+                  `}
+                >
+                  {isLoading ? (
+                    <>
+                      <Spinner color={theme === "dark" ? "#00ff88" : "#10b981"} />
+                      <span>Authenticating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Sign In</span>
+                      <Icon.ArrowRight />
+                    </>
+                  )}
+                </Button>
+
+              </form>
+            </CardContent>
+          </Card>
 
           {/* Footer note */}
-          <p className="text-center text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-6 tracking-widest uppercase">
+          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-4 sm:mt-6 tracking-widest uppercase">
             ENV VAULT · Secure · Private
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
