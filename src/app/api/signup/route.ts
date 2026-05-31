@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { cookies } from "next/headers";
 import clientPromise, { dbName } from "@/lib/connectDb";
+import { signJWT } from "@/lib/session";
+import { generateOTP, sendVerificationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,15 +46,21 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 14);
+    const verificationCode = generateOTP();
 
     const result = await db.collection("users").insertOne({
       email,
       password: hashedPassword,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      isVerified: false,
+      verificationCode,
+      verificationCodeExpires: new Date(Date.now() + 10 * 60 * 1000)
     });
 
+    await sendVerificationEmail(email, verificationCode);
+
     return NextResponse.json(
-      { success: true, userId: result.insertedId },
+      { success: true, requireVerification: true, userId: result.insertedId },
       { status: 201 }
     );
   } catch (err) {

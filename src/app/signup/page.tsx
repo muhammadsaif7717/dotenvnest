@@ -114,8 +114,12 @@ export default function SignupPage() {
         throw new Error(data?.message || "Invalid credentials.");
       }
 
-      router.push("/login"); // After successful signup, they can login, or maybe we redirect directly. The API returns userId. Let's just push to login.
-      router.refresh();
+      if (data.requireVerification) {
+        router.push(`/verify?email=${encodeURIComponent(email.trim())}`);
+      } else {
+        router.push("/");
+        router.refresh();
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -154,10 +158,7 @@ export default function SignupPage() {
             className="text-base sm:text-lg font-bold tracking-tight"
             style={{ fontFamily: "'Courier New', monospace" }}
           >
-            <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env
-            <span className="text-zinc-300 dark:text-[#444] ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">
-              manager
-            </span>
+            <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env<span className="text-zinc-300 dark:text-[#444] ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
           </span>
         </div>
 
@@ -192,7 +193,7 @@ export default function SignupPage() {
               Sign up
             </h1>
             <p className="text-zinc-400 dark:text-[#444] text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
-              Access your env vault.
+              Access your .env nest.
             </p>
           </div>
 
@@ -316,7 +317,7 @@ export default function SignupPage() {
             Already have an account? <a href="/login" className="text-emerald-500 dark:text-[#00ff88] hover:underline">Sign in</a>
           </p>
           <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-2 tracking-widest uppercase">
-            ENV VAULT · Secure · Private
+            DOTENVNEST · Secure · Private
           </p>
         </div>
       </main>

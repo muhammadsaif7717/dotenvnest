@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 export async function POST() {
   const cookieStore = await cookies();
-  cookieStore.set("envvault_session", "", {
+  cookieStore.set("dotenvnest_session", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { verifyJWT } from "@/lib/session";
 
 const protectedRoutes = ["/", "/account"]; // Add more if needed
-const authRoutes = ["/login"];
+const authRoutes = ["/login", "/signup", "/verify"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -11,10 +11,10 @@ export async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.includes(pathname);
   const isAuthRoute = authRoutes.includes(pathname);
   const isApiRoute = pathname.startsWith("/api/");
-  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/cli") || pathname.startsWith("/api/signup");
+  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/cli") || pathname.startsWith("/api/signup") || pathname.startsWith("/api/verify");
 
   // Get token from cookie
-  const token = request.cookies.get("envvault_session")?.value;
+  const token = request.cookies.get("dotenvnest_session")?.value;
   
   // Verify token
   const payload = await verifyJWT(token);

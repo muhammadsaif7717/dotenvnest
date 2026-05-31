@@ -17,7 +17,7 @@ in envs tab ....... there i will see all projects name with env file. after clic
 in envs tab ....... i can search by project name... and can sort by date posting ,,,,, accending or decending.
 
 
-the db name is = envvault
+the db name is = dotenvnest
 and the collection name is envs
 
 

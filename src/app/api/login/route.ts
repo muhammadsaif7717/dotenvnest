@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 import clientPromise, { dbName } from "@/lib/connectDb";
 import { signJWT } from "@/lib/session";
+import { generateOTP, sendVerificationEmail } from "@/lib/email";
 
 // ─── POST /api/login ──────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
@@ -39,12 +40,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (user.isVerified === false) {
+      const verificationCode = generateOTP();
+      const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+      
+      await db.collection("users").updateOne(
+        { email },
+        { $set: { verificationCode, verificationCodeExpires } }
+      );
+      
+      await sendVerificationEmail(email, verificationCode);
+
+      return NextResponse.json(
+        { message: "Please verify your email first. A new code has been sent.", requireVerification: true },
+        { status: 403 }
+      );
+    }
+
     // Generate JWT token
     const token = await signJWT({ userId: user._id.toString(), email: user.email });
 
     // Set HTTP-only session cookie (7-day expiry)
     const cookieStore = await cookies();
-    cookieStore.set("envvault_session", token, {
+    cookieStore.set("dotenvnest_session", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

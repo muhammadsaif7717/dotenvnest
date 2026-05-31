@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,31 +33,6 @@ const Icon = {
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
-  Lock: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  ),
-  User: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  ),
-  Eye: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  ),
-  EyeOff: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  ),
   ArrowRight: () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <line x1="5" y1="12" x2="19" y2="12" />
@@ -81,20 +56,20 @@ const Spinner = ({ color = "#0a0a0a" }: { color?: string }) => (
   />
 );
 
-// ─── Login Page ───────────────────────────────────────────────────────────────
-export default function LoginPage() {
+// ─── Verify Content ────────────────────────────────────────────────────────────
+function VerifyContent() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = email.trim().length > 0 && password.length > 0;
+  const canSubmit = code.trim().length === 6;
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit || isLoading) return;
 
@@ -102,20 +77,16 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: email.trim(), code: code.trim() }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        if (data?.requireVerification) {
-          router.push(`/verify?email=${encodeURIComponent(email.trim())}`);
-          return;
-        }
-        throw new Error(data?.message || "Invalid credentials.");
+        throw new Error(data?.message || "Invalid verification code.");
       }
 
       router.push("/");
@@ -129,7 +100,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-white dark:bg-[#0a0a0a] text-zinc-800 dark:text-[#e8e8e8] font-mono transition-colors duration-200 flex flex-col">
-
       {/* Grid background – light */}
       <div
         className="fixed inset-0 pointer-events-none dark:hidden"
@@ -162,7 +132,7 @@ export default function LoginPage() {
           </span>
         </div>
 
-        {/* Theme toggle – shadcn Button variant ghost */}
+        {/* Theme toggle */}
         <Button
           variant="outline"
           size="sm"
@@ -180,91 +150,53 @@ export default function LoginPage() {
       {/* ── Main content ────────────────────────────────────────────────────── */}
       <main className="relative flex flex-1 items-center justify-center px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <div className="w-full max-w-xs sm:max-w-sm">
-
           {/* Header text */}
           <div className="mb-6 sm:mb-8">
             <p className="text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-zinc-400 dark:text-[#555] font-semibold mb-1.5 sm:mb-2">
-              Secure Access
+              Verification Required
             </p>
             <h1
               className="text-2xl sm:text-3xl font-bold tracking-tight"
               style={{ fontFamily: "'Courier New', monospace" }}
             >
-              Sign in
+              Verify Email
             </h1>
             <p className="text-zinc-400 dark:text-[#444] text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
-              Access your .env nest.
+              We sent a 6-digit code to <span className="text-emerald-500 dark:text-[#00ff88]">{email}</span>.
             </p>
           </div>
 
           {/* ── Card ────────────────────────────────────────────────────────── */}
           <Card className="rounded-xl border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#0e0e0e] shadow-sm overflow-hidden p-0">
-
             {/* VSCode-style title bar */}
             <CardHeader className="flex flex-row items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-zinc-100 dark:bg-[#0d0d0d] border-b border-zinc-200 dark:border-[#1e1e1e] space-y-0">
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56]" />
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffbd2e]" />
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#27c93f]" />
               <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-[11px] text-zinc-400 dark:text-[#333] tracking-wider">
-                auth.env
+                verify.env
               </span>
             </CardHeader>
 
             {/* Form body */}
             <CardContent className="p-4 sm:p-6">
-              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
-
-                {/* Username */}
+              <form onSubmit={handleVerify} className="space-y-4 sm:space-y-5">
+                {/* Verification Code */}
                 <div className="space-y-1 sm:space-y-1.5">
                   <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
-                    Email
+                    6-Digit Code
                   </Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
-                      <Icon.User />
-                    </span>
                     <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(null); }}
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      spellCheck={false}
-                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
+                      type="text"
+                      maxLength={6}
+                      value={code}
+                      onChange={(e) => { setCode(e.target.value.replace(/\\D/g, '')); setError(null); }}
+                      placeholder="000000"
+                      autoComplete="one-time-code"
+                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] px-4 py-2.5 sm:py-3 text-center text-lg sm:text-xl tracking-[0.5em] text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
                       style={{ fontFamily: "'Courier New', monospace" }}
                     />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="space-y-1 sm:space-y-1.5">
-                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
-                      <Icon.Lock />
-                    </span>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => { setPassword(e.target.value); setError(null); }}
-                      placeholder="••••••••••••"
-                      autoComplete="current-password"
-                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
-                      style={{ fontFamily: "'Courier New', monospace" }}
-                    />
-                    {/* Toggle password visibility */}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 text-zinc-300 dark:text-[#444] hover:text-zinc-500 dark:hover:text-[#888] hover:bg-transparent"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <Icon.EyeOff /> : <Icon.Eye />}
-                    </Button>
                   </div>
                 </div>
 
@@ -298,29 +230,28 @@ export default function LoginPage() {
                   {isLoading ? (
                     <>
                       <Spinner color={theme === "dark" ? "#00ff88" : "#10b981"} />
-                      <span>Authenticating...</span>
+                      <span>Verifying...</span>
                     </>
                   ) : (
                     <>
-                      <span>Sign In</span>
+                      <span>Verify & Login</span>
                       <Icon.ArrowRight />
                     </>
                   )}
                 </Button>
-
               </form>
             </CardContent>
           </Card>
-
-          {/* Footer note */}
-          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#555] mt-4 tracking-widest">
-            Don't have an account? <a href="/signup" className="text-emerald-500 dark:text-[#00ff88] hover:underline">Sign up</a>
-          </p>
-          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-2 tracking-widest uppercase">
-            DOTENVNEST · Secure · Private
-          </p>
         </div>
       </main>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Spinner /></div>}>
+      <VerifyContent />
+    </Suspense>
   );
 }

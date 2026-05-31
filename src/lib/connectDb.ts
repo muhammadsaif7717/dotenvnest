@@ -40,4 +40,4 @@ if (process.env.NODE_ENV === "development") {
 export default clientPromise;
 
 /** Database name used across the entire app */
-export const dbName = "envvault";
+export const dbName = "dotenvnest";

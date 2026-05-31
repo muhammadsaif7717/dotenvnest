@@ -17,13 +17,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Env Vault",
+  title: "DotEnvNest",
   description: "Securely store and manage your project environment files.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Env Vault"
+    title: "DotEnvNest"
   },
 };
 

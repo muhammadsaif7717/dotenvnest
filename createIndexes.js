@@ -8,7 +8,7 @@ async function run() {
   const client = new MongoClient(uri);
   try {
     await client.connect();
-    const db = client.db('envvault');
+    const db = client.db('dotenvnest');
     
     console.log("Creating unique index on users.email...");
     await db.collection('users').createIndex({ email: 1 }, { unique: true });

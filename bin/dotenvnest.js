@@ -12,7 +12,7 @@ if (projectIndex === -1) {
 }
 
 if (projectIndex === -1 || projectIndex >= args.length - 1) {
-  console.error("Usage: envvault run --project <project-name> -- <command>");
+  console.error("Usage: dotenvnest run --project <project-name> -- <command>");
   process.exit(1);
 }
 
@@ -39,11 +39,11 @@ if (args.length === 0) {
 const command = args[0];
 const commandArgs = args.slice(1);
 
-const fetchUrl = new URL(`/api/cli?project=${encodeURIComponent(projectName)}`, process.env.ENVVAULT_URL || 'https://envvault-two.vercel.app').toString();
+const fetchUrl = new URL(`/api/cli?project=${encodeURIComponent(projectName)}`, process.env.DOTENVNEST_URL || 'https://dotenvnest-two.vercel.app').toString();
 
-const apiKey = process.env.ENVVAULT_API_KEY;
+const apiKey = process.env.DOTENVNEST_API_KEY;
 if (!apiKey) {
-  console.error("Error: ENVVAULT_API_KEY is not set. Please export ENVVAULT_API_KEY=<your_cli_secret>.");
+  console.error("Error: DOTENVNEST_API_KEY is not set. Please export DOTENVNEST_API_KEY=<your_cli_secret>.");
   process.exit(1);
 }
 
@@ -59,7 +59,7 @@ fetch(fetchUrl, {
     }
     const parsedData = await res.json();
     if (!parsedData.envContent) {
-      console.error("Invalid response from Env Vault server.");
+      console.error("Invalid response from DotEnvNest server.");
       process.exit(1);
     }
 
@@ -84,7 +84,7 @@ fetch(fetchUrl, {
     // Merge with process.env
     const finalEnv = { ...process.env, ...envVars };
 
-    console.log(`[EnvVault] Injected ${Object.keys(envVars).length} variables into '${command}'.`);
+    console.log(`[DotEnvNest] Injected ${Object.keys(envVars).length} variables into '${command}'.`);
 
     const child = spawn(command, commandArgs, {
       env: finalEnv,
@@ -101,7 +101,7 @@ fetch(fetchUrl, {
     });
   })
   .catch((e) => {
-    console.error(`Error connecting to Env Vault: ${e.message}`);
-    console.error("Check your network connection and the Env Vault server.");
+    console.error(`Error connecting to DotEnvNest: ${e.message}`);
+    console.error("Check your network connection and the DotEnvNest server.");
     process.exit(1);
   });

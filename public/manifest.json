@@ -1,6 +1,6 @@
 {
-  "name": "Env Vault",
-  "short_name": "EnvVault",
+  "name": "DotEnvNest",
+  "short_name": "DotEnvNest",
   "description": "Securely store and manage your project environment files.",
   "start_url": "/",
   "display": "standalone",

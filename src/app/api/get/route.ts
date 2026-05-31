@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("envvault_session")?.value;
+    const token = cookieStore.get("dotenvnest_session")?.value;
     const payload = await verifyJWT(token);
     
     if (!payload || !payload.userId) {

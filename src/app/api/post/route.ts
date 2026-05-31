@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
     
     const cookieStore = await cookies();
-    const token = cookieStore.get("envvault_session")?.value;
+    const token = cookieStore.get("dotenvnest_session")?.value;
     const payload = await verifyJWT(token);
     
     if (!payload || !payload.userId) {

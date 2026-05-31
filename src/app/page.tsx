@@ -690,7 +690,7 @@ export default function HomePage() {
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-zinc-400 dark:text-zinc-600 font-semibold">
-                  ENV VAULT
+                  DOTENVNEST
                 </span>
               </div>
 

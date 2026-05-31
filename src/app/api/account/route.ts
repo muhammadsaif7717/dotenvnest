@@ -7,7 +7,7 @@ import { signJWT, verifyJWT } from "@/lib/session";
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("envvault_session")?.value;
+    const token = cookieStore.get("dotenvnest_session")?.value;
     
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -28,7 +28,7 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("envvault_session")?.value;
+    const token = cookieStore.get("dotenvnest_session")?.value;
     
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -80,7 +80,7 @@ export async function PUT(req: NextRequest) {
     const newToken = await signJWT({ userId: currentUser._id.toString(), email: newEmail });
 
     // Set HTTP-only session cookie (7-day expiry)
-    cookieStore.set("envvault_session", newToken, {
+    cookieStore.set("dotenvnest_session", newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

@@ -353,10 +353,7 @@ export default function AccountPage() {
               className="text-base sm:text-lg font-bold tracking-tight"
               style={{ fontFamily: "'Courier New', monospace" }}
             >
-              <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env
-              <span className="text-zinc-300 dark:text-[#444] ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">
-                manager
-              </span>
+              <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env<span className="text-zinc-300 dark:text-[#444] ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
             </span>
           </Link>
         </div>
@@ -554,7 +551,7 @@ export default function AccountPage() {
 
           {/* Footer */}
           <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-4 sm:mt-6 tracking-widest uppercase">
-            ENV VAULT · Secure · Private
+            DOTENVNEST · Secure · Private
           </p>
         </div>
       </main>
