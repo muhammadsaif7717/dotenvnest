@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyJWT } from "@/lib/session";
 import clientPromise, { dbName } from "@/lib/connectDb";
-import { decrypt } from "@/lib/crypto";
+import { decryptWithUserPin, decryptWithGlobalSecret } from "@/lib/crypto";
+import { ObjectId } from "mongodb";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,16 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     const client = await clientPromise;
-    const collection = client.db(dbName).collection("envs");
+    const db = client.db(dbName);
+    
+    const user = await db.collection("users").findOne({ _id: new ObjectId(payload.userId as string) });
+    if (!user || !user.encrypted_user_secret) {
+      return NextResponse.json({ error: "PIN setup required." }, { status: 403 });
+    }
+    
+    const rawPin = decryptWithGlobalSecret(user.encrypted_user_secret);
+
+    const collection = db.collection("envs");
 
     const query = { userId: payload.userId as string };
 
@@ -38,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     const decryptedEnvs = envs.map(env => ({
       ...env,
-      envContent: decrypt(env.envContent)
+      envContent: decryptWithUserPin(env.envContent, rawPin)
     }));
 
     return NextResponse.json({

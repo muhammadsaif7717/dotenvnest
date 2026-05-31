@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.includes(pathname);
   const isAuthRoute = authRoutes.includes(pathname);
   const isApiRoute = pathname.startsWith("/api/");
-  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/cli") || pathname.startsWith("/api/signup") || pathname.startsWith("/api/verify");
+  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/cli") || pathname.startsWith("/api/signup") || pathname.startsWith("/api/verify") || pathname.startsWith("/api/resend-code");
 
   // Get token from cookie
   const token = request.cookies.get("dotenvnest_session")?.value;

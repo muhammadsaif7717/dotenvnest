@@ -74,7 +74,7 @@ const Icon = {
 };
 
 // ─── Spinner ──────────────────────────────────────────────────────────────────
-const Spinner = ({ color = "#0a0a0a" }: { color?: string }) => (
+const Spinner = ({ color = "currentColor" }: { color?: string }) => (
   <span
     className="w-3.5 h-3.5 border-2 rounded-full animate-spin inline-block shrink-0"
     style={{ borderColor: `${color} ${color} ${color} transparent` }}
@@ -128,7 +128,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen min-h-dvh bg-white dark:bg-[#0a0a0a] text-zinc-800 dark:text-[#e8e8e8] font-mono transition-colors duration-200 flex flex-col">
+    <div className="min-h-screen min-h-dvh bg-background text-foreground font-mono transition-colors duration-200 flex flex-col">
 
       {/* Grid background – light */}
       <div
@@ -150,15 +150,15 @@ export default function SignupPage() {
       />
 
       {/* ── Top bar ─────────────────────────────────────────────────────────── */}
-      <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-100 dark:border-[#141414]">
+      <header className="relative flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-100 dark:border-zinc-900">
         {/* Logo */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-[#00ff88] animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
           <span
             className="text-base sm:text-lg font-bold tracking-tight"
             style={{ fontFamily: "'Courier New', monospace" }}
           >
-            <span className="text-emerald-500 dark:text-[#00ff88]">.</span>env<span className="text-zinc-300 dark:text-[#444] ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
+            <span className="text-emerald-500 dark:text-emerald-400">.</span>env<span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
           </span>
         </div>
 
@@ -167,7 +167,7 @@ export default function SignupPage() {
           variant="outline"
           size="sm"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex items-center gap-1.5 sm:gap-2 h-8 px-2.5 sm:px-3 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 dark:text-[#555] border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#111] hover:text-zinc-800 dark:hover:text-[#e8e8e8] hover:border-zinc-300 dark:hover:border-[#333]"
+          className="flex items-center gap-1.5 sm:gap-2 h-8 px-2.5 sm:px-3 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 dark:text-zinc-500 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700"
           title="Toggle theme"
         >
           <span className="dark:hidden"><Icon.Moon /></span>
@@ -183,7 +183,7 @@ export default function SignupPage() {
 
           {/* Header text */}
           <div className="mb-6 sm:mb-8">
-            <p className="text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-zinc-400 dark:text-[#555] font-semibold mb-1.5 sm:mb-2">
+            <p className="text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold mb-1.5 sm:mb-2">
               Secure Access
             </p>
             <h1
@@ -192,20 +192,20 @@ export default function SignupPage() {
             >
               Sign up
             </h1>
-            <p className="text-zinc-400 dark:text-[#444] text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
+            <p className="text-zinc-400 dark:text-zinc-600 text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
               Access your .env nest.
             </p>
           </div>
 
           {/* ── Card ────────────────────────────────────────────────────────── */}
-          <Card className="rounded-xl border border-zinc-200 dark:border-[#1e1e1e] bg-zinc-50 dark:bg-[#0e0e0e] shadow-sm overflow-hidden p-0">
+          <Card className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 shadow-sm overflow-hidden p-0">
 
             {/* VSCode-style title bar */}
-            <CardHeader className="flex flex-row items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-zinc-100 dark:bg-[#0d0d0d] border-b border-zinc-200 dark:border-[#1e1e1e] space-y-0">
+            <CardHeader className="flex flex-row items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 space-y-0">
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56]" />
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ffbd2e]" />
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#27c93f]" />
-              <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-[11px] text-zinc-400 dark:text-[#333] tracking-wider">
+              <span className="ml-1.5 sm:ml-2 text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-700 tracking-wider">
                 auth.env
               </span>
             </CardHeader>
@@ -216,11 +216,11 @@ export default function SignupPage() {
 
                 {/* Username */}
                 <div className="space-y-1 sm:space-y-1.5">
-                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
+                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
                     Email
                   </Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-zinc-700 pointer-events-none">
                       <Icon.User />
                     </span>
                     <Input
@@ -230,7 +230,7 @@ export default function SignupPage() {
                       placeholder="you@example.com"
                       autoComplete="email"
                       spellCheck={false}
-                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
+                      className="w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 pr-4 py-2.5 sm:py-3 text-xs sm:text-sm text-foreground placeholder-zinc-300 dark:placeholder-zinc-700 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 dark:focus-visible:border-emerald-500 h-auto rounded-lg"
                       style={{ fontFamily: "'Courier New', monospace" }}
                     />
                   </div>
@@ -238,11 +238,11 @@ export default function SignupPage() {
 
                 {/* Password */}
                 <div className="space-y-1 sm:space-y-1.5">
-                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
+                  <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
                     Password
                   </Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-zinc-700 pointer-events-none">
                       <Icon.Lock />
                     </span>
                     <Input
@@ -251,7 +251,7 @@ export default function SignupPage() {
                       onChange={(e) => { setPassword(e.target.value); setError(null); }}
                       placeholder="••••••••••••"
                       autoComplete="current-password"
-                      className="w-full bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] h-auto rounded-lg"
+                      className="w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-foreground placeholder-zinc-300 dark:placeholder-zinc-700 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 dark:focus-visible:border-emerald-500 h-auto rounded-lg"
                       style={{ fontFamily: "'Courier New', monospace" }}
                     />
                     {/* Toggle password visibility */}
@@ -260,7 +260,7 @@ export default function SignupPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setShowPassword((s) => !s)}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 text-zinc-300 dark:text-[#444] hover:text-zinc-500 dark:hover:text-[#888] hover:bg-transparent"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-[#888] hover:bg-transparent"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <Icon.EyeOff /> : <Icon.Eye />}
@@ -270,7 +270,7 @@ export default function SignupPage() {
 
                 {/* Error alert */}
                 {error && (
-                  <Alert className="py-2 px-3 sm:px-3.5 bg-red-50 dark:bg-[#ff4444]/8 border-red-200 dark:border-[#ff4444]/25 text-red-500 dark:text-[#ff4444]">
+                  <Alert className="py-2 px-3 sm:px-3.5 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-500 dark:text-red-400">
                     <AlertDescription className="flex items-center gap-2 text-xs leading-snug">
                       <Icon.Warn />
                       <span>{error}</span>
@@ -288,16 +288,16 @@ export default function SignupPage() {
                     text-xs sm:text-sm font-bold tracking-widest uppercase
                     transition-all duration-200 mt-1
                     ${!canSubmit
-                      ? "bg-zinc-100 dark:bg-[#111] text-zinc-300 dark:text-[#333] border border-zinc-200 dark:border-[#1e1e1e] cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-[#111]"
+                      ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-300 dark:text-zinc-700 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-zinc-900"
                       : isLoading
-                      ? "bg-emerald-50 dark:bg-[#00ff88]/20 text-emerald-500 dark:text-[#00ff88] border border-emerald-300 dark:border-[#00ff88]/30 cursor-wait hover:bg-emerald-50 dark:hover:bg-[#00ff88]/20"
-                      : "bg-emerald-500 dark:bg-[#00ff88] text-white dark:text-[#0a0a0a] hover:bg-emerald-600 dark:hover:bg-[#00e07a] active:scale-[0.98]"
+                      ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
+                      : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
                     }
                   `}
                 >
                   {isLoading ? (
                     <>
-                      <Spinner color={theme === "dark" ? "#00ff88" : "#10b981"} />
+                      <Spinner color={theme === "dark" ? "#34d399" : "#10b981"} />
                       <span>Authenticating...</span>
                     </>
                   ) : (
@@ -313,10 +313,10 @@ export default function SignupPage() {
           </Card>
 
           {/* Footer note */}
-          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#555] mt-4 tracking-widest">
-            Already have an account? <a href="/login" className="text-emerald-500 dark:text-[#00ff88] hover:underline">Sign in</a>
+          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-zinc-500 mt-4 tracking-widest">
+            Already have an account? <a href="/login" className="text-emerald-500 dark:text-emerald-400 hover:underline">Sign in</a>
           </p>
-          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-2 tracking-widest uppercase">
+          <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-zinc-800 mt-2 tracking-widest uppercase">
             DOTENVNEST · Secure · Private
           </p>
         </div>

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyJWT } from "@/lib/session";
 import clientPromise, { dbName } from "@/lib/connectDb";
-import { encrypt } from "@/lib/crypto";
+import { encryptWithUserPin, decryptWithGlobalSecret } from "@/lib/crypto";
+import { ObjectId } from "mongodb";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,12 +26,23 @@ export async function POST(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const collection = client.db(dbName).collection("envs");
+    const db = client.db(dbName);
+    
+    // Fetch the user to get their encrypted secret
+    const user = await db.collection("users").findOne({ _id: new ObjectId(payload.userId as string) });
+    if (!user || !user.encrypted_user_secret) {
+      return NextResponse.json({ error: "PIN setup required." }, { status: 403 });
+    }
+
+    // Decrypt the PIN using the global secret
+    const rawPin = decryptWithGlobalSecret(user.encrypted_user_secret);
+
+    const collection = db.collection("envs");
 
     const result = await collection.insertOne({
       userId: payload.userId,
       projectName: projectName.trim(),
-      envContent: encrypt(envContent.trim()),
+      envContent: encryptWithUserPin(envContent.trim(), rawPin),
       tags: Array.isArray(tags) ? tags : [],
       createdAt: new Date().toISOString(),
       lastModified: new Date().toISOString(),

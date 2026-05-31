@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 import clientPromise, { dbName } from "@/lib/connectDb";
-import { signJWT, verifyJWT } from "@/lib/session";
+import { verifyJWT } from "@/lib/session";
+import { generateOTP, sendVerificationEmail } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -41,9 +42,16 @@ export async function PUT(req: NextRequest) {
 
     const { email: newEmail, password: newPassword, oldPassword } = await req.json();
 
-    if (!newEmail || !newPassword || !oldPassword) {
+    if (!oldPassword) {
       return NextResponse.json(
-        { message: "Email, new password, and current password are required." },
+        { message: "Current password is required." },
+        { status: 400 }
+      );
+    }
+    
+    if (!newEmail && !newPassword) {
+      return NextResponse.json(
+        { message: "No updates provided." },
         { status: 400 }
       );
     }
@@ -63,32 +71,41 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ message: "Incorrect current password." }, { status: 401 });
     }
 
-    // Hash the new password with saltRounds=14 to match the rest of the app
-    const hashedPassword = await bcrypt.hash(newPassword, 14);
+    const updates: Partial<{ password: string; email: string; isVerified: boolean; verificationCode: string; verificationCodeExpires: Date }> = {};
+    if (newPassword) {
+      updates.password = await bcrypt.hash(newPassword, 14);
+    }
+    if (newEmail) {
+      updates.email = newEmail;
+      updates.isVerified = false;
+      const verificationCode = generateOTP();
+      updates.verificationCode = verificationCode;
+      updates.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+      await sendVerificationEmail(newEmail, verificationCode);
+    }
 
     // Update the user document
     const result = await db.collection("users").updateOne(
       { _id: currentUser._id },
-      { $set: { email: newEmail, password: hashedPassword } }
+      { $set: updates }
     );
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
-    // Generate new JWT token with updated email
-    const newToken = await signJWT({ userId: currentUser._id.toString(), email: newEmail });
-
-    // Set HTTP-only session cookie (7-day expiry)
-    cookieStore.set("dotenvnest_session", newToken, {
+    // Delete existing session cookie to log the user out
+    cookieStore.set("dotenvnest_session", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 0,
       path: "/",
     });
 
-    return NextResponse.json({ success: true, email: newEmail }, { status: 200 });
+    // Inform client that verification is required if email changed
+    const requireVerification = !!newEmail;
+    return NextResponse.json({ success: true, email: newEmail, requireVerification }, { status: 200 });
   } catch (err) {
     console.error("[account put] error:", err);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

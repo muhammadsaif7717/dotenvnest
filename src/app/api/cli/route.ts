@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
 import clientPromise, { dbName } from "@/lib/connectDb";
-import { decrypt } from "@/lib/crypto";
+import { decryptWithUserPin, decryptWithGlobalSecret } from "@/lib/crypto";
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,7 +21,8 @@ export async function GET(req: NextRequest) {
     }
 
     const client = await clientPromise;
-    const collection = client.db(dbName).collection("envs");
+    const db = client.db(dbName);
+    const collection = db.collection("envs");
 
     const project = await collection.findOne({ projectName });
 
@@ -30,10 +32,17 @@ export async function GET(req: NextRequest) {
         { status: 404 }
       );
     }
+    
+    const user = await db.collection("users").findOne({ _id: new ObjectId(project.userId as string) });
+    if (!user || !user.encrypted_user_secret) {
+      return NextResponse.json({ error: "User PIN not configured" }, { status: 403 });
+    }
+    
+    const rawPin = decryptWithGlobalSecret(user.encrypted_user_secret);
 
     return NextResponse.json({
       projectName: project.projectName,
-      envContent: decrypt(project.envContent),
+      envContent: decryptWithUserPin(project.envContent, rawPin),
     }, { status: 200 });
 
   } catch (error) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef, useCallback, useEffect } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { postEnv, getAllEnv, deleteAEnv, updateAEnv, EnvProject } from "@/lib/api";
@@ -65,7 +65,6 @@ import {
   FileText,
   Plus,
   Download,
-  Settings,
 } from "lucide-react";
 import { computeDiff } from "@/lib/diff";
 
@@ -453,6 +452,8 @@ function EnvItem({
   );
 }
 
+import { SetupPinModal } from "@/components/SetupPinModal";
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
@@ -479,13 +480,17 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data: paginatedData, isLoading: isLoadingEnvs, refetch } = useQuery({
+  const { data: paginatedData, isLoading: isLoadingEnvs, refetch, error: envsError } = useQuery({
     queryKey: ["envs", page],
     queryFn: () => getAllEnv(page, limit),
+    retry: false,
   });
 
   const envs = paginatedData?.data || [];
   const hasMore = paginatedData?.hasMore || false;
+  
+  // Check if we need to show the Setup PIN modal
+  const showSetupPin = Boolean(envsError && (envsError as { response?: { status?: number } }).response?.status === 403);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">("desc");
@@ -606,6 +611,7 @@ export default function HomePage() {
 
   return (
     <TooltipProvider>
+      <SetupPinModal open={showSetupPin} />
       <div className="min-h-screen min-h-dvh bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-mono transition-colors duration-200">
 
         {/* Grid background – light */}

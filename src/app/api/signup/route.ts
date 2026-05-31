@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { cookies } from "next/headers";
 import clientPromise, { dbName } from "@/lib/connectDb";
-import { signJWT } from "@/lib/session";
 import { generateOTP, sendVerificationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
