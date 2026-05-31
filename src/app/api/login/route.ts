@@ -7,11 +7,11 @@ import { signJWT } from "@/lib/session";
 // ─── POST /api/login ──────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
-    const { username, password } = await req.json();
+    const { email, password } = await req.json();
 
-    if (!username || !password) {
+    if (!email || !password) {
       return NextResponse.json(
-        { message: "Username and password are required." },
+        { message: "Email and password are required." },
         { status: 400 }
       );
     }
@@ -19,10 +19,10 @@ export async function POST(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db(dbName);
 
-    // Fetch the admin document matching the username
-    const admin = await db.collection("admin").findOne({ username });
+    // Fetch the user document matching the email
+    const user = await db.collection("users").findOne({ email });
 
-    if (!admin) {
+    if (!user) {
       // Generic message to avoid username enumeration
       return NextResponse.json(
         { message: "Invalid credentials." },
@@ -30,8 +30,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // bcrypt.compare auto-detects saltRounds=14 from the hash prefix
-    const passwordMatch = await bcrypt.compare(password, admin.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       return NextResponse.json(
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate JWT token
-    const token = await signJWT({ username: admin.username });
+    const token = await signJWT({ userId: user._id.toString(), email: user.email });
 
     // Set HTTP-only session cookie (7-day expiry)
     const cookieStore = await cookies();

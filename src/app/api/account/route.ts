@@ -14,11 +14,11 @@ export async function GET() {
     }
     
     const payload = await verifyJWT(token);
-    if (!payload || !payload.username) {
+    if (!payload || !payload.email) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({ username: payload.username }, { status: 200 });
+    return NextResponse.json({ email: payload.email }, { status: 200 });
   } catch (err) {
     console.error("[account get] error:", err);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
@@ -35,15 +35,15 @@ export async function PUT(req: NextRequest) {
     }
     
     const payload = await verifyJWT(token);
-    if (!payload || !payload.username) {
+    if (!payload || !payload.email || !payload.userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { username: newUsername, password: newPassword, oldPassword } = await req.json();
+    const { email: newEmail, password: newPassword, oldPassword } = await req.json();
 
-    if (!newUsername || !newPassword || !oldPassword) {
+    if (!newEmail || !newPassword || !oldPassword) {
       return NextResponse.json(
-        { message: "Username, new password, and current password are required." },
+        { message: "Email, new password, and current password are required." },
         { status: 400 }
       );
     }
@@ -52,7 +52,7 @@ export async function PUT(req: NextRequest) {
     const db = client.db(dbName);
 
     // Verify current user
-    const currentUser = await db.collection("admin").findOne({ username: payload.username });
+    const currentUser = await db.collection("users").findOne({ email: payload.email as string });
     if (!currentUser) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
@@ -66,18 +66,18 @@ export async function PUT(req: NextRequest) {
     // Hash the new password with saltRounds=14 to match the rest of the app
     const hashedPassword = await bcrypt.hash(newPassword, 14);
 
-    // Update the admin document
-    const result = await db.collection("admin").updateOne(
-      { username: payload.username },
-      { $set: { username: newUsername, password: hashedPassword } }
+    // Update the user document
+    const result = await db.collection("users").updateOne(
+      { _id: currentUser._id },
+      { $set: { email: newEmail, password: hashedPassword } }
     );
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
-    // Generate new JWT token with updated username
-    const newToken = await signJWT({ username: newUsername });
+    // Generate new JWT token with updated email
+    const newToken = await signJWT({ userId: currentUser._id.toString(), email: newEmail });
 
     // Set HTTP-only session cookie (7-day expiry)
     cookieStore.set("envvault_session", newToken, {
@@ -88,7 +88,7 @@ export async function PUT(req: NextRequest) {
       path: "/",
     });
 
-    return NextResponse.json({ success: true, username: newUsername }, { status: 200 });
+    return NextResponse.json({ success: true, email: newEmail }, { status: 200 });
   } catch (err) {
     console.error("[account put] error:", err);
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });

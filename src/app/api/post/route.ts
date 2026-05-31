@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { verifyJWT } from "@/lib/session";
 import clientPromise, { dbName } from "@/lib/connectDb";
+import { encrypt } from "@/lib/crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,15 +15,25 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    const cookieStore = await cookies();
+    const token = cookieStore.get("envvault_session")?.value;
+    const payload = await verifyJWT(token);
+    
+    if (!payload || !payload.userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const client = await clientPromise;
     const collection = client.db(dbName).collection("envs");
 
     const result = await collection.insertOne({
+      userId: payload.userId,
       projectName: projectName.trim(),
-      envContent: envContent.trim(),
+      envContent: encrypt(envContent.trim()),
       tags: Array.isArray(tags) ? tags : [],
       createdAt: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
     });
 
     return NextResponse.json(

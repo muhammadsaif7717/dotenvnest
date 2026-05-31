@@ -6,6 +6,7 @@ export interface EnvProject {
   envContent: string;
   tags?: string[];
   createdAt: string;
+  lastModified?: string;
 }
 
 export interface PostEnvPayload {
@@ -25,8 +26,16 @@ export const postEnv = async (payload: PostEnvPayload): Promise<{ message: strin
   return res.data;
 };
 
-export const getAllEnv = async (): Promise<EnvProject[]> => {
-  const res = await axios.get("/api/get");
+export interface PaginatedEnvResponse {
+  data: EnvProject[];
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
+}
+
+export const getAllEnv = async (page = 1, limit = 10): Promise<PaginatedEnvResponse> => {
+  const res = await axios.get(`/api/get?page=${page}&limit=${limit}`);
   return res.data;
 };
 

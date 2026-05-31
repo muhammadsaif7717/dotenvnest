@@ -81,8 +81,8 @@ const Spinner = ({ color = "#0a0a0a" }: { color?: string }) => (
   />
 );
 
-// ─── Login Page ───────────────────────────────────────────────────────────────
-export default function LoginPage() {
+// ─── Signup Page ───────────────────────────────────────────────────────────────
+export default function SignupPage() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
 
@@ -94,7 +94,7 @@ export default function LoginPage() {
 
   const canSubmit = email.trim().length > 0 && password.length > 0;
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit || isLoading) return;
 
@@ -102,7 +102,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),
@@ -114,7 +114,7 @@ export default function LoginPage() {
         throw new Error(data?.message || "Invalid credentials.");
       }
 
-      router.push("/");
+      router.push("/login"); // After successful signup, they can login, or maybe we redirect directly. The API returns userId. Let's just push to login.
       router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -189,7 +189,7 @@ export default function LoginPage() {
               className="text-2xl sm:text-3xl font-bold tracking-tight"
               style={{ fontFamily: "'Courier New', monospace" }}
             >
-              Sign in
+              Sign up
             </h1>
             <p className="text-zinc-400 dark:text-[#444] text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
               Access your env vault.
@@ -211,7 +211,7 @@ export default function LoginPage() {
 
             {/* Form body */}
             <CardContent className="p-4 sm:p-6">
-              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
+              <form onSubmit={handleSignup} className="space-y-4 sm:space-y-5">
 
                 {/* Username */}
                 <div className="space-y-1 sm:space-y-1.5">
@@ -301,7 +301,7 @@ export default function LoginPage() {
                     </>
                   ) : (
                     <>
-                      <span>Sign In</span>
+                      <span>Sign Up</span>
                       <Icon.ArrowRight />
                     </>
                   )}
@@ -313,7 +313,7 @@ export default function LoginPage() {
 
           {/* Footer note */}
           <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#555] mt-4 tracking-widest">
-            Don't have an account? <a href="/signup" className="text-emerald-500 dark:text-[#00ff88] hover:underline">Sign up</a>
+            Already have an account? <a href="/login" className="text-emerald-500 dark:text-[#00ff88] hover:underline">Sign in</a>
           </p>
           <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-[#2a2a2a] mt-2 tracking-widest uppercase">
             ENV VAULT · Secure · Private

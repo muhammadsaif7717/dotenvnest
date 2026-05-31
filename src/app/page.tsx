@@ -4,6 +4,7 @@ import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { postEnv, getAllEnv, deleteAEnv, updateAEnv, EnvProject } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // shadcn/ui imports
 import { Button } from "@/components/ui/button";
@@ -456,6 +457,7 @@ function EnvItem({
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState("envs");
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
@@ -471,13 +473,23 @@ export default function HomePage() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const queryClient = useQueryClient();
+
   // Envs tab
-  const [envs, setEnvs] = useState<EnvProject[]>([]);
-  const [isLoadingEnvs, setIsLoadingEnvs] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  const { data: paginatedData, isLoading: isLoadingEnvs, refetch } = useQuery({
+    queryKey: ["envs", page],
+    queryFn: () => getAllEnv(page, limit),
+  });
+
+  const envs = paginatedData?.data || [];
+  const hasMore = paginatedData?.hasMore || false;
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">("desc");
   const [tagFilter, setTagFilter] = useState<string>("All");
-  const [hasFetchedEnvs, setHasFetchedEnvs] = useState(false);
 
   // Per-item state
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -485,21 +497,8 @@ export default function HomePage() {
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [updateTarget, setUpdateTarget] = useState<EnvProject | null>(null);
 
-  const fetchEnvs = useCallback(async () => {
-    setIsLoadingEnvs(true);
-    try {
-      const data = await getAllEnv();
-      setEnvs(data);
-      setHasFetchedEnvs(true);
-    } catch {
-      // silently fail
-    } finally {
-      setIsLoadingEnvs(false);
-    }
-  }, []);
-
   const handleTabChange = (tab: string) => {
-    if (tab === "envs" && !hasFetchedEnvs) fetchEnvs();
+    setActiveTab(tab);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -510,25 +509,34 @@ export default function HomePage() {
     reader.readAsText(file);
   };
 
-  const handleSave = async () => {
-    if (!projectName.trim() || !envText.trim()) return;
-    setIsSaving(true);
-    setSaveStatus("idle");
-    try {
-      const tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
-      await postEnv({ projectName: projectName.trim(), envContent: envText.trim(), tags });
+  const postMutation = useMutation({
+    mutationFn: postEnv,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
       setSaveStatus("success");
       setProjectName("");
       setEnvText("");
       setTagsString("");
-      setHasFetchedEnvs(false);
-      setTimeout(() => setSaveStatus("idle"), 3000);
-    } catch {
+      setTimeout(() => {
+        setSaveStatus("idle");
+        setActiveTab("envs");
+      }, 1500);
+    },
+    onError: () => {
       setSaveStatus("error");
       setTimeout(() => setSaveStatus("idle"), 3000);
-    } finally {
+    },
+    onSettled: () => {
       setIsSaving(false);
     }
+  });
+
+  const handleSave = () => {
+    if (!projectName.trim() || !envText.trim()) return;
+    setIsSaving(true);
+    setSaveStatus("idle");
+    const tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
+    postMutation.mutate({ projectName: projectName.trim(), envContent: envText.trim(), tags });
   };
 
   const handleCopy = (env: EnvProject) => {
@@ -550,25 +558,33 @@ export default function HomePage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!deleteTarget) return;
-    setIsDeletingId(deleteTarget._id);
-    try {
-      await deleteAEnv(deleteTarget._id);
-      setEnvs((prev) => prev.filter((e) => e._id !== deleteTarget._id));
+  const deleteMutation = useMutation({
+    mutationFn: deleteAEnv,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
       setDeleteTarget(null);
-    } catch {
-      // could show toast
-    } finally {
+    },
+    onSettled: () => {
       setIsDeletingId(null);
     }
+  });
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    setIsDeletingId(deleteTarget._id);
+    deleteMutation.mutate(deleteTarget._id);
   };
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, name, content, tags }: { id: string, name: string, content: string, tags: string[] }) => 
+      updateAEnv(id, { projectName: name, envContent: content, tags }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
+    }
+  });
+
   const handleUpdate = async (id: string, name: string, content: string, tags: string[]) => {
-    await updateAEnv(id, { projectName: name, envContent: content, tags });
-    setEnvs((prev) =>
-      prev.map((e) => (e._id === id ? { ...e, projectName: name, envContent: content, tags } : e))
-    );
+    await updateMutation.mutateAsync({ id, name, content, tags });
   };
 
   const allTags = Array.from(new Set(envs.flatMap(e => e.tags || []))).sort();
@@ -579,6 +595,11 @@ export default function HomePage() {
     )
     .filter((e) => tagFilter === "All" || (e.tags && e.tags.includes(tagFilter)))
     .sort((a, b) => {
+      if (sortOrder === "lastModified") {
+        const aTime = a.lastModified ? new Date(a.lastModified).getTime() : new Date(a.createdAt).getTime();
+        const bTime = b.lastModified ? new Date(b.lastModified).getTime() : new Date(b.createdAt).getTime();
+        return bTime - aTime;
+      }
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return sortOrder === "asc" ? diff : -diff;
     });
@@ -748,20 +769,20 @@ export default function HomePage() {
           </div>
 
           {/* ── Tabs ──────────────────────────────────────────────────────────── */}
-          <Tabs defaultValue="post" onValueChange={handleTabChange}>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList className="mb-6 sm:mb-8 h-auto p-0 bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden w-fit">
               <TabsTrigger
-                value="post"
+                value="envs"
                 className="px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-widest uppercase rounded-none data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-none dark:data-[state=active]:bg-emerald-500 dark:data-[state=active]:text-white text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 border-r border-zinc-200 dark:border-zinc-800"
+              >
+                All Envs
+              </TabsTrigger>
+              <TabsTrigger
+                value="post"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-widest uppercase rounded-none data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-none dark:data-[state=active]:bg-emerald-500 dark:data-[state=active]:text-white text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300"
               >
                 <Plus className="w-3 h-3 mr-1 sm:mr-1.5" />
                 Post
-              </TabsTrigger>
-              <TabsTrigger
-                value="envs"
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-widest uppercase rounded-none data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-none dark:data-[state=active]:bg-emerald-500 dark:data-[state=active]:text-white text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300"
-              >
-                All Envs
               </TabsTrigger>
             </TabsList>
 
@@ -860,7 +881,7 @@ export default function HomePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSortOrder((s) => (s === "desc" ? "asc" : "desc"))}
+                      onClick={() => setSortOrder((s) => (s === "desc" ? "asc" : s === "asc" ? "lastModified" : "desc"))}
                       className="gap-1.5 h-auto py-2.5 sm:py-3 px-2.5 sm:px-3 border-zinc-200 dark:border-zinc-800 text-zinc-500 shrink-0"
                     >
                       <ArrowUpDown
@@ -868,7 +889,7 @@ export default function HomePage() {
                         style={{ transform: sortOrder === "asc" ? "scaleY(-1)" : "scaleY(1)" }}
                       />
                       <span className="hidden sm:inline text-xs font-semibold tracking-wide">
-                        {sortOrder === "desc" ? "Newest" : "Oldest"}
+                        {sortOrder === "desc" ? "Newest" : sortOrder === "asc" ? "Oldest" : "Last Modified"}
                       </span>
                     </Button>
                   </TooltipTrigger>
@@ -893,7 +914,7 @@ export default function HomePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={fetchEnvs}
+                      onClick={() => refetch()}
                       disabled={isLoadingEnvs}
                       className="h-auto py-2.5 sm:py-3 w-9 sm:w-10 p-0 border-zinc-200 dark:border-zinc-800 text-zinc-500 shrink-0"
                     >
@@ -945,10 +966,35 @@ export default function HomePage() {
               )}
 
               {filteredEnvs.length > 0 && (
-                <p className="text-[10px] sm:text-[11px] text-zinc-300 dark:text-zinc-700 text-center tracking-widest uppercase pt-1 sm:pt-2">
-                  {filteredEnvs.length} project{filteredEnvs.length !== 1 ? "s" : ""}
-                  {searchQuery && ` matching "${searchQuery}"`}
-                </p>
+                <div className="flex flex-col gap-4 pt-4">
+                  <div className="flex items-center justify-between px-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page === 1 || isLoadingEnvs}
+                      className="font-mono text-[10px] tracking-widest uppercase border-zinc-200 dark:border-zinc-800"
+                    >
+                      Previous
+                    </Button>
+                    <p className="text-[10px] sm:text-[11px] text-zinc-300 dark:text-zinc-700 tracking-widest uppercase">
+                      Page {page}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(p => p + 1)}
+                      disabled={!hasMore || isLoadingEnvs}
+                      className="font-mono text-[10px] tracking-widest uppercase border-zinc-200 dark:border-zinc-800"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-zinc-300 dark:text-zinc-700 text-center tracking-widest uppercase">
+                    {filteredEnvs.length} project{filteredEnvs.length !== 1 ? "s" : ""} on this page
+                    {searchQuery && ` matching "${searchQuery}"`}
+                  </p>
+                </div>
               )}
             </TabsContent>
           </Tabs>

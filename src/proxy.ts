@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.includes(pathname);
   const isAuthRoute = authRoutes.includes(pathname);
   const isApiRoute = pathname.startsWith("/api/");
-  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/cli");
+  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/cli") || pathname.startsWith("/api/signup");
 
   // Get token from cookie
   const token = request.cookies.get("envvault_session")?.value;

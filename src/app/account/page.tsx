@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -122,7 +123,7 @@ export default function AccountPage() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -130,7 +131,6 @@ export default function AccountPage() {
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -141,18 +141,19 @@ export default function AccountPage() {
     router.refresh();
   };
 
-  useEffect(() => {
-    fetch("/api/account")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.username) setUsername(data.username);
-      })
-      .catch((err) => console.error("Failed to fetch account info", err))
-      .finally(() => setIsFetching(false));
-  }, []);
+  const { isFetching } = useQuery({
+    queryKey: ["account"],
+    queryFn: async () => {
+      const res = await fetch("/api/account");
+      const data = await res.json();
+      if (data.email) setEmail(data.email);
+      return data;
+    },
+    refetchOnWindowFocus: false,
+  });
 
   const canSubmit =
-    username.trim().length > 0 &&
+    email.trim().length > 0 &&
     password.length > 0 &&
     password === confirmPassword;
 
@@ -167,32 +168,38 @@ export default function AccountPage() {
     setShowVerifyModal(true);
   };
 
-  const handleVerifyAndSave = async () => {
-    if (!oldPassword) return;
-    setIsLoading(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
+  const accountMutation = useMutation({
+    mutationFn: async () => {
       const res = await fetch("/api/account", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.trim(), password, oldPassword }),
+        body: JSON.stringify({ email: email.trim(), password, oldPassword }),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to update account.");
-
+      return data;
+    },
+    onSuccess: () => {
       setSuccess("Account updated successfully!");
       setPassword("");
       setConfirmPassword("");
       setShowVerifyModal(false);
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
+    },
+    onError: (err: Error) => {
+      setError(err.message || "Something went wrong.");
+    },
+    onSettled: () => {
       setIsLoading(false);
     }
+  });
+
+  const handleVerifyAndSave = async () => {
+    if (!oldPassword) return;
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+    accountMutation.mutate();
   };
 
   return (
@@ -410,18 +417,18 @@ export default function AccountPage() {
                   {/* Username */}
                   <div className="space-y-1 sm:space-y-1.5">
                     <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-[#555] font-semibold">
-                      New Username
+                      New Email
                     </Label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-[#333] pointer-events-none">
                         <Icon.User />
                       </span>
                       <Input
-                        type="text"
-                        value={username}
-                        onChange={(e) => { setUsername(e.target.value); setError(null); setSuccess(null); }}
-                        placeholder="your_username"
-                        autoComplete="username"
+                        type="email"
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setError(null); setSuccess(null); }}
+                        placeholder="new@example.com"
+                        autoComplete="email"
                         spellCheck={false}
                         className="bg-white dark:bg-[#111] border-zinc-200 dark:border-[#1e1e1e] pl-9 pr-4 h-auto py-2.5 sm:py-3 text-xs sm:text-sm text-zinc-800 dark:text-[#e8e8e8] placeholder-zinc-300 dark:placeholder-[#333] focus-visible:border-emerald-500 dark:focus-visible:border-[#00ff88] focus-visible:ring-emerald-500/20 dark:focus-visible:ring-[#00ff88]/20 rounded-lg"
                         style={{ fontFamily: "'Courier New', monospace" }}

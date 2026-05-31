@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise, { dbName } from "@/lib/connectDb";
+import { decrypt } from "@/lib/crypto";
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       projectName: project.projectName,
-      envContent: project.envContent,
+      envContent: decrypt(project.envContent),
     }, { status: 200 });
 
   } catch (error) {
