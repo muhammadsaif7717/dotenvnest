@@ -63,6 +63,7 @@ import {
   User,
   FileText,
   Plus,
+  Download,
 } from "lucide-react";
 
 // ─── Spinner ──────────────────────────────────────────────────────────────────
@@ -281,6 +282,7 @@ function EnvItem({
   copiedId,
   isDeletingId,
   onCopy,
+  onDownload,
   onEdit,
   onDelete,
 }: {
@@ -289,6 +291,7 @@ function EnvItem({
   copiedId: string | null;
   isDeletingId: string | null;
   onCopy: (e: EnvProject) => void;
+  onDownload: (e: EnvProject) => void;
   onEdit: (e: EnvProject) => void;
   onDelete: (e: EnvProject) => void;
 }) {
@@ -347,6 +350,22 @@ function EnvItem({
             </Button>
           </TooltipTrigger>
           <TooltipContent>Copy env content</TooltipContent>
+        </Tooltip>
+
+        {/* Download */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDownload(env)}
+              className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200"
+            >
+              <Download className="w-3 h-3" />
+              <span className="hidden md:inline">Download</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Download .env</TooltipContent>
         </Tooltip>
 
         {/* Edit */}
@@ -466,6 +485,18 @@ export default function HomePage() {
       setCopiedId(env._id);
       setTimeout(() => setCopiedId(null), 2000);
     });
+  };
+
+  const handleDownload = (env: EnvProject) => {
+    const blob = new Blob([env.envContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = ".env";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleDeleteConfirm = async () => {
@@ -824,8 +855,9 @@ export default function HomePage() {
                       copiedId={copiedId}
                       isDeletingId={isDeletingId}
                       onCopy={handleCopy}
-                      onEdit={setUpdateTarget}
-                      onDelete={setDeleteTarget}
+                      onDownload={handleDownload}
+                      onEdit={(e) => setUpdateTarget(e)}
+                      onDelete={(e) => setDeleteTarget(e)}
                     />
                   ))}
                 </div>
