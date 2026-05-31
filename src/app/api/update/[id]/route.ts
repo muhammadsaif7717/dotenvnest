@@ -14,7 +14,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { projectName, envContent } = body;
+    const { projectName, envContent, tags = [] } = body;
 
     if (!projectName || !envContent) {
       return NextResponse.json(
@@ -32,6 +32,7 @@ export async function PUT(
         $set: {
           projectName: projectName.trim(),
           envContent: envContent.trim(),
+          tags: Array.isArray(tags) ? tags : [],
           updatedAt: new Date().toISOString(),
         },
       }

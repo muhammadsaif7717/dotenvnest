@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { postEnv, getAllEnv, deleteAEnv, updateAEnv, EnvProject } from "@/lib/api";
@@ -64,7 +64,9 @@ import {
   FileText,
   Plus,
   Download,
+  Settings,
 } from "lucide-react";
+import { computeDiff } from "@/lib/diff";
 
 // ─── Spinner ──────────────────────────────────────────────────────────────────
 const Spinner = ({ className }: { className?: string }) => (
@@ -152,11 +154,12 @@ function UpdateModal({
 }: {
   env: EnvProject | null;
   open: boolean;
-  onSave: (id: string, name: string, content: string) => Promise<void>;
+  onSave: (id: string, name: string, content: string, tags: string[]) => Promise<void>;
   onClose: () => void;
 }) {
   const [name, setName] = useState(env?.projectName ?? "");
   const [content, setContent] = useState(env?.envContent ?? "");
+  const [tagsString, setTagsString] = useState(env?.tags?.join(", ") ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -165,6 +168,7 @@ function UpdateModal({
     setPrevEnv(env);
     setName(env?.projectName ?? "");
     setContent(env?.envContent ?? "");
+    setTagsString(env?.tags?.join(", ") ?? "");
     setError(false);
   }
 
@@ -181,7 +185,8 @@ function UpdateModal({
     setIsSaving(true);
     setError(false);
     try {
-      await onSave(env._id, name.trim(), content.trim());
+      const tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
+      await onSave(env._id, name.trim(), content.trim(), tags);
       onClose();
     } catch {
       setError(true);
@@ -191,7 +196,10 @@ function UpdateModal({
   };
 
   const unchanged =
-    name.trim() === env?.projectName && content.trim() === env?.envContent;
+    name.trim() === env?.projectName && content.trim() === env?.envContent && tagsString.trim() === (env?.tags?.join(", ") ?? "");
+
+  const diffs = useMemo(() => computeDiff(env?.envContent ?? "", content), [env?.envContent, content]);
+  const hasChanges = diffs.some(d => d.status !== "unchanged");
 
   return (
     <Dialog open={open} onOpenChange={(o) => !isSaving && !o && onClose()}>
@@ -219,6 +227,18 @@ function UpdateModal({
             </div>
 
             <div className="space-y-1.5">
+              <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
+                Tags (comma separated)
+              </Label>
+              <Input
+                value={tagsString}
+                onChange={(e) => setTagsString(e.target.value)}
+                placeholder="Personal, API, Prod..."
+                className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 h-auto py-2.5 sm:py-3"
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
                   Environment Variables
@@ -236,6 +256,23 @@ function UpdateModal({
               </div>
               <EnvEditor value={content} onChange={setContent} rows={8} />
             </div>
+
+            {hasChanges && (
+              <div className="space-y-1.5 mt-2">
+                <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
+                  Changes Preview
+                </Label>
+                <div className="bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-md p-2.5 text-xs font-mono space-y-1 max-h-32 overflow-y-auto">
+                  {diffs.filter(d => d.status !== "unchanged").map(d => (
+                    <div key={d.key} className="flex gap-2 items-center">
+                      {d.status === "added" && <span className="text-emerald-500 font-semibold">+ {d.key}</span>}
+                      {d.status === "removed" && <span className="text-red-500 font-semibold">- {d.key}</span>}
+                      {d.status === "changed" && <span className="text-amber-500 font-semibold">~ {d.key} <span className="text-zinc-400 text-[10px] font-normal">(modified)</span></span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {error && (
               <p className="text-red-500 dark:text-red-400 text-xs">
@@ -323,8 +360,18 @@ function EnvItem({
           <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">
             {env.projectName}
           </p>
-          <p className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-600 mt-0.5">
-            {keyCount} keys · {formatDate(env.createdAt)}
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-600 mt-0.5 flex flex-wrap gap-1.5 items-center">
+            <span>{keyCount} keys</span>
+            <span>·</span>
+            <span>{formatDate(env.createdAt)}</span>
+            {env.tags && env.tags.length > 0 && (
+              <>
+                <span>·</span>
+                {env.tags.map(tag => (
+                  <Badge key={tag} variant="secondary" className="text-[8px] sm:text-[9px] px-1 py-0 h-4 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{tag}</Badge>
+                ))}
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -419,6 +466,7 @@ export default function HomePage() {
   // Post tab
   const [projectName, setProjectName] = useState("");
   const [envText, setEnvText] = useState("");
+  const [tagsString, setTagsString] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -428,6 +476,7 @@ export default function HomePage() {
   const [isLoadingEnvs, setIsLoadingEnvs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [tagFilter, setTagFilter] = useState<string>("All");
   const [hasFetchedEnvs, setHasFetchedEnvs] = useState(false);
 
   // Per-item state
@@ -466,10 +515,12 @@ export default function HomePage() {
     setIsSaving(true);
     setSaveStatus("idle");
     try {
-      await postEnv({ projectName: projectName.trim(), envContent: envText.trim() });
+      const tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
+      await postEnv({ projectName: projectName.trim(), envContent: envText.trim(), tags });
       setSaveStatus("success");
       setProjectName("");
       setEnvText("");
+      setTagsString("");
       setHasFetchedEnvs(false);
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch {
@@ -492,7 +543,7 @@ export default function HomePage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = ".env";
+    link.download = `${env.projectName}.env`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -513,15 +564,20 @@ export default function HomePage() {
     }
   };
 
-  const handleUpdate = async (id: string, name: string, content: string) => {
-    await updateAEnv(id, { projectName: name, envContent: content });
+  const handleUpdate = async (id: string, name: string, content: string, tags: string[]) => {
+    await updateAEnv(id, { projectName: name, envContent: content, tags });
     setEnvs((prev) =>
-      prev.map((e) => (e._id === id ? { ...e, projectName: name, envContent: content } : e))
+      prev.map((e) => (e._id === id ? { ...e, projectName: name, envContent: content, tags } : e))
     );
   };
 
+  const allTags = Array.from(new Set(envs.flatMap(e => e.tags || []))).sort();
+
   const filteredEnvs = envs
-    .filter((e) => e.projectName.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter((e) =>
+      e.projectName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((e) => tagFilter === "All" || (e.tags && e.tags.includes(tagFilter)))
     .sort((a, b) => {
       const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return sortOrder === "asc" ? diff : -diff;
@@ -724,6 +780,18 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-1.5">
+                <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
+                  Tags (comma separated)
+                </Label>
+                <Input
+                  value={tagsString}
+                  onChange={(e) => setTagsString(e.target.value)}
+                  placeholder="Personal, API, Prod..."
+                  className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 h-auto py-2.5 sm:py-3"
+                />
+              </div>
+
+              <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
                     Environment Variables
@@ -806,6 +874,19 @@ export default function HomePage() {
                   </TooltipTrigger>
                   <TooltipContent>Toggle sort order</TooltipContent>
                 </Tooltip>
+
+                {allTags.length > 0 && (
+                  <select
+                    value={tagFilter}
+                    onChange={(e) => setTagFilter(e.target.value)}
+                    className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md px-2 py-2.5 sm:py-3 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 outline-none text-zinc-600 dark:text-zinc-400"
+                  >
+                    <option value="All">All Tags</option>
+                    {allTags.map(tag => (
+                      <option key={tag} value={tag}>{tag}</option>
+                    ))}
+                  </select>
+                )}
 
                 <Tooltip>
                   <TooltipTrigger asChild>

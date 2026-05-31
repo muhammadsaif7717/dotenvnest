@@ -4,7 +4,7 @@ import clientPromise, { dbName } from "@/lib/connectDb";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { projectName, envContent } = body;
+    const { projectName, envContent, tags = [] } = body;
 
     if (!projectName || !envContent) {
       return NextResponse.json(
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     const result = await collection.insertOne({
       projectName: projectName.trim(),
       envContent: envContent.trim(),
+      tags: Array.isArray(tags) ? tags : [],
       createdAt: new Date().toISOString(),
     });
 

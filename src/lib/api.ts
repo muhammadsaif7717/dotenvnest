@@ -4,17 +4,20 @@ export interface EnvProject {
   _id: string;
   projectName: string;
   envContent: string;
+  tags?: string[];
   createdAt: string;
 }
 
 export interface PostEnvPayload {
   projectName: string;
   envContent: string;
+  tags?: string[];
 }
 
 export interface UpdateEnvPayload {
   projectName: string;
   envContent: string;
+  tags?: string[];
 }
 
 export const postEnv = async (payload: PostEnvPayload): Promise<{ message: string; id: string }> => {

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable */
 
 const { spawn } = require('child_process');
 const http = require('http');
