@@ -18,7 +18,24 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "DotEnvNest",
-  description: "Securely store and manage your project environment files.",
+  description: "A secure, beautiful, and open-source platform to store and manage your project environment files (.env).",
+  keywords: ["dotenv", "environment variables", "env manager", "secure storage", "nextjs", "open source", "developer tools"],
+  authors: [{ name: "MD. SAIF ISLAM", url: "https://github.com/muhammadsaif7717" }],
+  creator: "MD. SAIF ISLAM",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://github.com/muhammadsaif7717/dotenvnest",
+    title: "DotEnvNest - Secure .env Manager",
+    description: "Store, manage, and sync your project environment files securely with DotEnvNest. Built for developers by developers.",
+    siteName: "DotEnvNest",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DotEnvNest - Secure .env Manager",
+    description: "Store, manage, and sync your project environment files securely with DotEnvNest.",
+    creator: "@muhammadsaif7717",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

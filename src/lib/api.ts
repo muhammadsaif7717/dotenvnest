@@ -46,8 +46,11 @@ export interface PaginatedEnvResponse {
   hasMore: boolean;
 }
 
-export const getAllEnv = async (page = 1, limit = 10): Promise<PaginatedEnvResponse> => {
-  const res = await axios.get(`/api/get?page=${page}&limit=${limit}`);
+export const getAllEnv = async (page = 1, limit = 10, search = ""): Promise<PaginatedEnvResponse> => {
+  const url = search 
+    ? `/api/get?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}` 
+    : `/api/get?page=${page}&limit=${limit}`;
+  const res = await axios.get(url);
   return res.data;
 };
 

@@ -65,6 +65,7 @@ import {
   FileText,
   Plus,
   Download,
+  X,
 } from "lucide-react";
 import { computeDiff } from "@/lib/diff";
 
@@ -480,9 +481,13 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">("desc");
+  const [tagFilter, setTagFilter] = useState<string>("All");
+
   const { data: paginatedData, isLoading: isLoadingEnvs, refetch, error: envsError } = useQuery({
-    queryKey: ["envs", page],
-    queryFn: () => getAllEnv(page, limit),
+    queryKey: ["envs", page, searchQuery],
+    queryFn: () => getAllEnv(page, limit, searchQuery),
     retry: false,
   });
 
@@ -492,9 +497,7 @@ export default function HomePage() {
   // Check if we need to show the Setup PIN modal
   const showSetupPin = Boolean(envsError && (envsError as { response?: { status?: number } }).response?.status === 403);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">("desc");
-  const [tagFilter, setTagFilter] = useState<string>("All");
+
 
   // Per-item state
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -595,9 +598,6 @@ export default function HomePage() {
   const allTags = Array.from(new Set(envs.flatMap(e => e.tags || []))).sort();
 
   const filteredEnvs = envs
-    .filter((e) =>
-      e.projectName.toLowerCase().includes(searchQuery.toLowerCase())
-    )
     .filter((e) => tagFilter === "All" || (e.tags && e.tags.includes(tagFilter)))
     .sort((a, b) => {
       if (sortOrder === "lastModified") {
@@ -876,10 +876,24 @@ export default function HomePage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 pointer-events-none" />
                   <Input
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setPage(1);
+                    }}
                     placeholder="Search projects…"
-                    className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 h-auto py-2.5 sm:py-3 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                    className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 pr-9 h-auto py-2.5 sm:py-3 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setPage(1);
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 <Tooltip>

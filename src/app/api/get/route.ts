@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const search = searchParams.get("search") || "";
     const skip = (page - 1) * limit;
 
     const client = await clientPromise;
@@ -34,7 +35,10 @@ export async function GET(req: NextRequest) {
 
     const collection = db.collection("envs");
 
-    const query = { userId: payload.userId as string };
+    const query: any = { userId: payload.userId as string };
+    if (search) {
+      query.projectName = { $regex: search, $options: "i" };
+    }
 
     const total = await collection.countDocuments(query);
     const hasMore = skip + limit < total;
