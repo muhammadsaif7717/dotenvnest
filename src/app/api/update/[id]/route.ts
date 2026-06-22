@@ -28,11 +28,13 @@ export async function PUT(
 
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
-    const payload = await verifyJWT(token);
+    const payload = await verifyJWT(token) as any;
     
-    if (!payload || !payload.userId) {
+    if (!payload || !payload.userId || !payload.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const userEmail = payload.email.toLowerCase().trim();
 
     const client = await clientPromise;
     const db = client.db(dbName);
@@ -46,21 +48,47 @@ export async function PUT(
 
     const collection = db.collection("envs");
 
+    // Fetch the env project
+    const env = await collection.findOne({ _id: new ObjectId(id) });
+    if (!env) {
+      return NextResponse.json({ error: "Env not found." }, { status: 404 });
+    }
+
+    let ownerPin = rawPin;
+    const isOwner = env.userId === payload.userId;
+
+    if (!isOwner) {
+      // Check if user has editor role in sharedWith array
+      const hasEditorAccess = env.sharedWith?.some(
+        (s: any) => s.email === userEmail && s.role === "editor"
+      );
+
+      if (!hasEditorAccess) {
+        return NextResponse.json(
+          { error: "Unauthorized. You do not have edit permission for this environment." },
+          { status: 403 }
+        );
+      }
+
+      // Fetch owner user's PIN to encrypt the new content
+      const owner = await db.collection("users").findOne({ _id: new ObjectId(env.userId as string) });
+      if (!owner || !owner.encrypted_user_secret) {
+        return NextResponse.json({ error: "Owner credentials error." }, { status: 500 });
+      }
+      ownerPin = decryptWithGlobalSecret(owner.encrypted_user_secret);
+    }
+
     const result = await collection.updateOne(
-      { _id: new ObjectId(id), userId: payload.userId as string },
+      { _id: new ObjectId(id) },
       {
         $set: {
           projectName: projectName.trim(),
-          envContent: encryptWithUserPin(envContent.trim(), rawPin),
+          envContent: encryptWithUserPin(envContent.trim(), ownerPin),
           tags: Array.isArray(tags) ? tags : [],
           lastModified: new Date().toISOString(),
         },
       }
     );
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: "Env not found." }, { status: 404 });
-    }
 
     return NextResponse.json(
       { message: "Env updated successfully." },

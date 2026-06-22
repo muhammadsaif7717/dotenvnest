@@ -12,6 +12,11 @@ axios.interceptors.response.use(
   }
 );
 
+export interface SharedUser {
+  email: string;
+  role: "viewer" | "editor";
+}
+
 export interface EnvProject {
   _id: string;
   projectName: string;
@@ -19,6 +24,10 @@ export interface EnvProject {
   tags?: string[];
   createdAt: string;
   lastModified?: string;
+  sharedWith?: SharedUser[];
+  ownerEmail?: string;
+  isShared?: boolean;
+  userRole?: "viewer" | "editor";
 }
 
 export interface PostEnvPayload {
@@ -46,10 +55,10 @@ export interface PaginatedEnvResponse {
   hasMore: boolean;
 }
 
-export const getAllEnv = async (page = 1, limit = 10, search = ""): Promise<PaginatedEnvResponse> => {
-  const url = search 
-    ? `/api/get?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}` 
-    : `/api/get?page=${page}&limit=${limit}`;
+export const getAllEnv = async (page = 1, limit = 10, search = "", type = "all"): Promise<PaginatedEnvResponse> => {
+  const url = `/api/get?page=${page}&limit=${limit}&type=${type}${
+    search ? `&search=${encodeURIComponent(search)}` : ""
+  }`;
   const res = await axios.get(url);
   return res.data;
 };
@@ -61,5 +70,15 @@ export const deleteAEnv = async (id: string): Promise<{ message: string }> => {
 
 export const updateAEnv = async (id: string, payload: UpdateEnvPayload): Promise<{ message: string }> => {
   const res = await axios.put(`/api/update/${id}`, payload);
+  return res.data;
+};
+
+export const shareEnv = async (id: string, sharedWith: SharedUser[]): Promise<{ message: string }> => {
+  const res = await axios.post(`/api/share/${id}`, { sharedWith });
+  return res.data;
+};
+
+export const leaveSharedEnv = async (id: string): Promise<{ message: string }> => {
+  const res = await axios.post(`/api/share/leave/${id}`);
   return res.data;
 };

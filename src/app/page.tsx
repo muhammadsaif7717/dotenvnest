@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { postEnv, getAllEnv, deleteAEnv, updateAEnv, EnvProject } from "@/lib/api";
+import { postEnv, getAllEnv, deleteAEnv, updateAEnv, shareEnv, leaveSharedEnv, EnvProject, SharedUser } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // shadcn/ui imports
@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Sheet,
@@ -66,6 +67,16 @@ import {
   Plus,
   Download,
   X,
+  UserPlus,
+  UserMinus,
+  Users,
+  ChevronDown,
+  Clock,
+  Calendar,
+  Tag,
+  FolderOpen,
+  UserCheck,
+  Share2,
 } from "lucide-react";
 import { computeDiff } from "@/lib/diff";
 
@@ -85,11 +96,13 @@ function EnvEditor({
   onChange,
   rows = 14,
   fileName = ".env",
+  readOnly = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   rows?: number;
   fileName?: string;
+  readOnly?: boolean;
 }) {
   const keyCount = value
     .split("\n")
@@ -134,7 +147,8 @@ function EnvEditor({
         {/* Textarea */}
         <textarea
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => !readOnly && onChange(e.target.value)}
+          readOnly={readOnly}
           placeholder={"DATABASE_URL=mongodb://...\nAPI_KEY=your_key\nSECRET=your_secret"}
           rows={rows}
           spellCheck={false}
@@ -173,6 +187,8 @@ function UpdateModal({
     setError(false);
   }
 
+  const isReadOnly = Boolean(env?.isShared && env?.userRole === "viewer");
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -182,7 +198,7 @@ function UpdateModal({
   };
 
   const handleSave = async () => {
-    if (!env || !name.trim() || !content.trim()) return;
+    if (!env || !name.trim() || !content.trim() || isReadOnly) return;
     setIsSaving(true);
     setError(false);
     try {
@@ -210,8 +226,13 @@ function UpdateModal({
             <div className="w-6 h-6 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
               <span className="text-emerald-500 dark:text-emerald-400 text-[9px] font-bold">.ev</span>
             </div>
-            <DialogTitle className="text-sm font-bold tracking-wide">Update Env</DialogTitle>
+            <DialogTitle className="text-sm font-bold tracking-wide">
+              {isReadOnly ? "View Env (Read-Only)" : "Update Env"}
+            </DialogTitle>
           </div>
+          <DialogDescription className="sr-only">
+            Update your project's environment variables configurations.
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="flex-1 max-h-[58dvh] sm:max-h-[62dvh]">
@@ -223,6 +244,7 @@ function UpdateModal({
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                disabled={isReadOnly}
                 className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 h-auto py-2.5 sm:py-3"
               />
             </div>
@@ -234,6 +256,7 @@ function UpdateModal({
               <Input
                 value={tagsString}
                 onChange={(e) => setTagsString(e.target.value)}
+                disabled={isReadOnly}
                 placeholder="Personal, API, Prod..."
                 className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 h-auto py-2.5 sm:py-3"
               />
@@ -244,21 +267,25 @@ function UpdateModal({
                 <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
                   Environment Variables
                 </Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-[10px] sm:text-[11px] h-7 px-2 sm:px-2.5 gap-1.5 text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 border-zinc-200 dark:border-zinc-700"
-                >
-                  <Upload className="w-3 h-3" />
-                  Upload .env
-                </Button>
-                <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
+                {!isReadOnly && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-[10px] sm:text-[11px] h-7 px-2 sm:px-2.5 gap-1.5 text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 border-zinc-200 dark:border-zinc-700"
+                    >
+                      <Upload className="w-3 h-3" />
+                      Upload .env
+                    </Button>
+                    <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
+                  </>
+                )}
               </div>
-              <EnvEditor value={content} onChange={setContent} rows={8} />
+              <EnvEditor value={content} onChange={setContent} rows={8} readOnly={isReadOnly} />
             </div>
 
-            {hasChanges && (
+            {!isReadOnly && hasChanges && (
               <div className="space-y-1.5 mt-2">
                 <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
                   Changes Preview
@@ -290,11 +317,11 @@ function UpdateModal({
             disabled={isSaving}
             className="flex-1 text-xs sm:text-sm border-zinc-200 dark:border-zinc-700 h-auto py-2.5 sm:py-3"
           >
-            Cancel
+            {isReadOnly ? "Close" : "Cancel"}
           </Button>
           <Button
             onClick={handleSave}
-            disabled={isSaving || unchanged || !name.trim() || !content.trim()}
+            disabled={isSaving || unchanged || !name.trim() || !content.trim() || isReadOnly}
             className={cn(
               "flex-1 text-xs sm:text-sm font-bold tracking-widest uppercase gap-2 h-auto py-2.5 sm:py-3",
               "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white",
@@ -303,11 +330,256 @@ function UpdateModal({
           >
             {isSaving ? (
               <><Spinner className="border-white/40" /><span>Saving…</span></>
+            ) : isReadOnly ? (
+              <span>Read-Only Mode</span>
             ) : (
               <><Save className="w-3.5 h-3.5" /><span>Save Changes</span></>
             )}
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Share Modal ─────────────────────────────────────────────────────────────
+interface ShareModalProps {
+  env: EnvProject | null;
+  open: boolean;
+  onClose: () => void;
+}
+
+function ShareModal({ env, open, onClose }: ShareModalProps) {
+  const [emailInput, setEmailInput] = useState("");
+  const [emails, setEmails] = useState<string[]>([]);
+  const [role, setRole] = useState<"viewer" | "editor">("viewer");
+  const [sharedList, setSharedList] = useState<SharedUser[]>(env?.sharedWith ?? []);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const [prevEnv, setPrevEnv] = useState<EnvProject | null>(env);
+  if (env !== prevEnv) {
+    setPrevEnv(env);
+    setSharedList(env?.sharedWith ?? []);
+    setEmails([]);
+    setEmailInput("");
+    setRole("viewer");
+    setError("");
+    setSuccess(false);
+  }
+
+  const handleAddEmail = () => {
+    const trimmed = emailInput.trim().toLowerCase();
+    if (!trimmed) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (emails.includes(trimmed) || sharedList.some((s) => s.email === trimmed)) {
+      setError("Email already added.");
+      return;
+    }
+
+    setEmails([...emails, trimmed]);
+    setEmailInput("");
+    setError("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "Tab" || e.key === ",") {
+      e.preventDefault();
+      handleAddEmail();
+    }
+  };
+
+  const removeChip = (email: string) => {
+    setEmails(emails.filter((e) => e !== email));
+  };
+
+  const handleSave = async () => {
+    if (!env) return;
+    setIsSaving(true);
+    setError("");
+    setSuccess(false);
+
+    const newShares: SharedUser[] = emails.map((email) => ({
+      email,
+      role,
+    }));
+    const updatedList = [...sharedList, ...newShares];
+
+    try {
+      await shareEnv(env._id, updatedList);
+      setSharedList(updatedList);
+      setEmails([]);
+      setSuccess(true);
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Failed to update sharing permissions.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRoleChange = async (email: string, newRole: "viewer" | "editor") => {
+    if (!env) return;
+    const updatedList = sharedList.map((item) =>
+      item.email === email ? { ...item, role: newRole } : item
+    );
+    setSharedList(updatedList);
+    try {
+      await shareEnv(env._id, updatedList);
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Failed to update role.");
+    }
+  };
+
+  const handleRevoke = async (email: string) => {
+    if (!env) return;
+    const updatedList = sharedList.filter((item) => item.email !== email);
+    setSharedList(updatedList);
+    try {
+      await shareEnv(env._id, updatedList);
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Failed to revoke access.");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !isSaving && !o && onClose()}>
+      <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-md font-mono rounded-xl p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-100 dark:border-zinc-800">
+          <DialogTitle className="text-sm font-bold tracking-wide flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-emerald-500" />
+            Share Project: {env?.projectName}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Manage sharing permissions and user access levels for this project.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="p-4 sm:p-6 space-y-4 max-h-[70dvh] overflow-y-auto">
+          <div className="space-y-1.5">
+            <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
+              Invite Users by Email
+            </Label>
+            <div className="flex gap-2">
+              <div className="flex-1 flex flex-wrap gap-1.5 p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md focus-within:ring-1 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
+                {emails.map((email) => (
+                  <Badge
+                    key={email}
+                    variant="secondary"
+                    className="text-[10px] py-0.5 px-2 bg-zinc-200 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center gap-1 font-mono uppercase tracking-wide shrink-0"
+                  >
+                    {email}
+                    <button
+                      type="button"
+                      onClick={() => removeChip(email)}
+                      className="text-zinc-400 hover:text-red-500"
+                    >
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </Badge>
+                ))}
+                <input
+                  type="text"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onBlur={handleAddEmail}
+                  placeholder={emails.length === 0 ? "developer@domain.com" : ""}
+                  className="flex-1 bg-transparent border-0 outline-none text-xs sm:text-sm font-mono text-zinc-800 dark:text-zinc-100 min-w-[80px]"
+                />
+              </div>
+
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value as "viewer" | "editor")}
+                className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md px-2 py-1.5 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 outline-none text-zinc-600 dark:text-zinc-400"
+              >
+                <option value="viewer">Viewer</option>
+                <option value="editor">Editor</option>
+              </select>
+            </div>
+            <p className="text-[9px] text-zinc-400 dark:text-zinc-600">
+              Press Enter, Tab, or Comma after typing an email to add it.
+            </p>
+          </div>
+
+          {error && <p className="text-red-500 dark:text-red-400 text-xs">{error}</p>}
+          {success && (
+            <p className="text-emerald-500 dark:text-emerald-400 text-xs flex items-center gap-1.5 animate-pulse">
+              <Check className="w-3.5 h-3.5" />
+              Permissions updated successfully!
+            </p>
+          )}
+
+          <Button
+            onClick={handleSave}
+            disabled={emails.length === 0 || isSaving}
+            className="w-full text-xs font-bold tracking-widest uppercase gap-2 bg-emerald-500 hover:bg-emerald-600 text-white h-9"
+          >
+            {isSaving ? <Spinner className="border-white/40" /> : <Save className="w-3.5 h-3.5" />}
+            Grant Access
+          </Button>
+
+          <Separator className="my-2" />
+
+          <div className="space-y-2">
+            <Label className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold block">
+              Current Access
+            </Label>
+            {sharedList.length === 0 ? (
+              <p className="text-xs text-zinc-400 dark:text-zinc-600 italic">
+                This project is currently private.
+              </p>
+            ) : (
+              <div className="space-y-2.5">
+                {sharedList.map((item) => (
+                  <div
+                    key={item.email}
+                    className="flex items-center justify-between p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800"
+                  >
+                    <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 truncate max-w-[180px] sm:max-w-[240px]">
+                      {item.email}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={item.role}
+                        onChange={(e) =>
+                          handleRoleChange(item.email, e.target.value as "viewer" | "editor")
+                        }
+                        className="font-mono text-[10px] sm:text-xs bg-transparent border-0 outline-none text-zinc-500 dark:text-zinc-400 cursor-pointer"
+                      >
+                        <option value="viewer">Viewer</option>
+                        <option value="editor">Editor</option>
+                      </select>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRevoke(item.email)}
+                        className="h-6 w-6 p-0 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 border-zinc-200 dark:border-zinc-800 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -323,6 +595,8 @@ function EnvItem({
   onDownload,
   onEdit,
   onDelete,
+  onShare,
+  onLeave,
 }: {
   env: EnvProject;
   idx: number;
@@ -332,13 +606,15 @@ function EnvItem({
   onDownload: (e: EnvProject) => void;
   onEdit: (e: EnvProject) => void;
   onDelete: (e: EnvProject) => void;
+  onShare: (e: EnvProject) => void;
+  onLeave: (e: EnvProject) => void;
 }) {
   const isCopied = copiedId === env._id;
   const isDeleting = isDeletingId === env._id;
 
   const keyCount = env.envContent
-    .split("\n")
-    .filter((l) => l.trim() && !l.trim().startsWith("#") && l.includes("=")).length;
+    ? env.envContent.split("\n").filter((l) => l.trim() && !l.trim().startsWith("#") && l.includes("=")).length
+    : 0;
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en-US", {
@@ -358,9 +634,21 @@ function EnvItem({
           <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold">.ev</span>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">
-            {env.projectName}
-          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">
+              {env.projectName}
+            </p>
+            {env.isShared ? (
+              <Badge variant="outline" className="text-[8px] sm:text-[9px] font-normal text-zinc-400 dark:text-zinc-500 px-1 py-0 h-4 normal-case border-zinc-200 dark:border-zinc-850 shrink-0">
+                Shared by: {env.ownerEmail} ({env.userRole})
+              </Badge>
+            ) : env.sharedWith && env.sharedWith.length > 0 ? (
+              <Badge variant="outline" className="text-[8px] sm:text-[9px] font-normal text-emerald-500 px-1 py-0 h-4 normal-case border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 shrink-0 flex items-center gap-0.5">
+                <Users className="w-2 h-2" />
+                Shared with {env.sharedWith.length}
+              </Badge>
+            ) : null}
+          </div>
           <p className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-600 mt-0.5 flex flex-wrap gap-1.5 items-center">
             <span>{keyCount} keys</span>
             <span>·</span>
@@ -426,34 +714,220 @@ function EnvItem({
               className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200"
             >
               <Pencil className="w-3 h-3" />
-              <span className="hidden md:inline">Edit</span>
+              <span className="hidden md:inline">
+                {env.isShared && env.userRole === "viewer" ? "View" : "Edit"}
+              </span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Edit project</TooltipContent>
+          <TooltipContent>{env.isShared && env.userRole === "viewer" ? "View project config" : "Edit project"}</TooltipContent>
         </Tooltip>
 
-        {/* Delete */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete(env)}
-              disabled={isDeleting}
-              className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50"
-            >
-              {isDeleting ? <Spinner className="border-red-400/60" /> : <Trash2 className="w-3 h-3" />}
-              <span className="hidden md:inline">Delete</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Delete project</TooltipContent>
-        </Tooltip>
+        {/* Conditionally render Share or Leave or Delete */}
+        {env.isShared ? (
+          /* Leave button for shared items */
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onLeave(env)}
+                className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:border-red-250 hover:bg-red-50 dark:hover:bg-red-950/20"
+              >
+                <UserMinus className="w-3 h-3" />
+                <span className="hidden md:inline">Leave</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Leave shared project</TooltipContent>
+          </Tooltip>
+        ) : (
+          /* Share & Delete buttons for owned items */
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onShare(env)}
+                  className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-emerald-600 hover:border-emerald-250 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20"
+                >
+                  <UserPlus className="w-3 h-3" />
+                  <span className="hidden md:inline">Share</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Manage access</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDelete(env)}
+                  disabled={isDeleting}
+                  className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50"
+                >
+                  {isDeleting ? <Spinner className="border-red-400/60" /> : <Trash2 className="w-3 h-3" />}
+                  <span className="hidden md:inline">Delete</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Delete project</TooltipContent>
+            </Tooltip>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 import { SetupPinModal } from "@/components/SetupPinModal";
+
+interface SortOption {
+  value: "desc" | "asc" | "lastModified";
+  label: string;
+  icon: any;
+}
+
+const sortOptions: SortOption[] = [
+  { value: "desc", label: "Newest First", icon: Clock },
+  { value: "asc", label: "Oldest First", icon: Calendar },
+  { value: "lastModified", label: "Last Modified", icon: RefreshCw },
+];
+
+function SortTagDropdown({
+  sortOrder,
+  onSortOrderChange,
+  tagFilter,
+  onTagFilterChange,
+  allTags,
+}: {
+  sortOrder: "desc" | "asc" | "lastModified";
+  onSortOrderChange: (sort: "desc" | "asc" | "lastModified") => void;
+  tagFilter: string;
+  onTagFilterChange: (tag: string) => void;
+  allTags: string[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const activeSort = sortOptions.find((o) => o.value === sortOrder) || sortOptions[0];
+  const IconComponent = activeSort.icon;
+
+  return (
+    <div className="relative inline-block text-left" ref={containerRef}>
+      <Button
+        variant="outline"
+        onClick={() => setIsOpen(!isOpen)}
+        className="font-mono text-xs sm:text-sm bg-zinc-50/90 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-md px-3 h-9 sm:h-10 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100 flex items-center gap-2 justify-between min-w-[130px] sm:min-w-[155px] text-left shrink-0 shadow-sm transition-all focus:ring-1 focus:ring-emerald-500/20"
+      >
+        <span className="font-semibold text-zinc-700 dark:text-zinc-300 truncate">
+          {activeSort.label}
+        </span>
+        <ChevronDown className={cn("w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 shrink-0 ml-1.5", isOpen && "rotate-180")} />
+      </Button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-1.5 w-60 rounded-xl border border-zinc-200/80 dark:border-zinc-850 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-2xl z-50 overflow-hidden py-2 animate-in fade-in slide-in-from-top-1 duration-100">
+          <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+            <div className="py-1">
+              <div className="px-3.5 py-1 text-[9px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">
+                Sort By
+              </div>
+              <div className="space-y-1 mt-1 px-1.5">
+                {sortOptions.map((opt) => {
+                  const isSelected = opt.value === sortOrder;
+                  const OptIcon = opt.icon;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        onSortOrderChange(opt.value);
+                        setIsOpen(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 py-2 text-xs font-mono text-left transition-colors rounded-lg",
+                        isSelected
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
+                          : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/55 dark:hover:bg-zinc-900/55 hover:text-zinc-800 dark:hover:text-zinc-200"
+                      )}
+                    >
+                      <span className="flex items-center gap-2">
+                        <OptIcon className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-emerald-500" : "text-zinc-400")} />
+                        {opt.label}
+                      </span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Separator className="my-2 opacity-50 dark:opacity-40" />
+            <div className="py-1">
+              <div className="px-3.5 py-1 text-[9px] font-bold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">
+                Filter by Tag
+              </div>
+              <div className="space-y-1 mt-1 px-1.5">
+                <button
+                  onClick={() => {
+                    onTagFilterChange("All");
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2 text-xs font-mono text-left transition-colors rounded-lg",
+                    tagFilter === "All"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
+                      : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/55 dark:hover:bg-zinc-900/55 hover:text-zinc-800 dark:hover:text-zinc-200"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Tag className={cn("w-3.5 h-3.5 shrink-0", tagFilter === "All" ? "text-emerald-500" : "text-zinc-450")} />
+                    All Tags
+                  </span>
+                  {tagFilter === "All" && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                </button>
+
+                {allTags.map((tag) => {
+                  const isSelected = tagFilter === tag;
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        onTagFilterChange(tag);
+                        setIsOpen(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center justify-between px-3 py-2 text-xs font-mono text-left transition-colors rounded-lg",
+                        isSelected
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
+                          : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/55 dark:hover:bg-zinc-900/55 hover:text-zinc-800 dark:hover:text-zinc-200"
+                      )}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Tag className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-emerald-500" : "text-zinc-400")} />
+                        {tag}
+                      </span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function HomePage() {
@@ -482,12 +956,14 @@ export default function HomePage() {
   const limit = 10;
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">("desc");
   const [tagFilter, setTagFilter] = useState<string>("All");
 
+
   const { data: paginatedData, isLoading: isLoadingEnvs, refetch, error: envsError } = useQuery({
-    queryKey: ["envs", page, searchQuery],
-    queryFn: () => getAllEnv(page, limit, searchQuery),
+    queryKey: ["envs", page, searchQuery, typeFilter],
+    queryFn: () => getAllEnv(page, limit, searchQuery, typeFilter),
     retry: false,
   });
 
@@ -504,6 +980,9 @@ export default function HomePage() {
   const [deleteTarget, setDeleteTarget] = useState<EnvProject | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [updateTarget, setUpdateTarget] = useState<EnvProject | null>(null);
+  const [shareTarget, setShareTarget] = useState<EnvProject | null>(null);
+  const [leaveTarget, setLeaveTarget] = useState<EnvProject | null>(null);
+  const [isLeavingId, setIsLeavingId] = useState<string | null>(null);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -596,6 +1075,23 @@ export default function HomePage() {
   };
 
   const allTags = Array.from(new Set(envs.flatMap(e => e.tags || []))).sort();
+
+  const leaveMutation = useMutation({
+    mutationFn: leaveSharedEnv,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["envs"] });
+      setLeaveTarget(null);
+    },
+    onSettled: () => {
+      setIsLeavingId(null);
+    }
+  });
+
+  const handleLeaveConfirm = () => {
+    if (!leaveTarget) return;
+    setIsLeavingId(leaveTarget._id);
+    leaveMutation.mutate(leaveTarget._id);
+  };
 
   const filteredEnvs = envs
     .filter((e) => tagFilter === "All" || (e.tags && e.tags.includes(tagFilter)))
@@ -870,8 +1366,9 @@ export default function HomePage() {
             {/* ── ENVS TAB ──────────────────────────────────────────────────── */}
             <TabsContent value="envs" className="mt-0 space-y-3 sm:space-y-4">
 
-              {/* Search + Sort + Refresh */}
-              <div className="flex gap-2">
+              {/* Search + Filters Toolbar */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                {/* Search */}
                 <div className="relative flex-1 min-w-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 pointer-events-none" />
                   <Input
@@ -881,7 +1378,7 @@ export default function HomePage() {
                       setPage(1);
                     }}
                     placeholder="Search projects…"
-                    className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 pr-9 h-auto py-2.5 sm:py-3 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                    className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 pr-9 h-9 sm:h-10 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 placeholder:text-zinc-300 dark:placeholder:text-zinc-700 w-full"
                   />
                   {searchQuery && (
                     <button
@@ -896,53 +1393,59 @@ export default function HomePage() {
                   )}
                 </div>
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSortOrder((s) => (s === "desc" ? "asc" : s === "asc" ? "lastModified" : "desc"))}
-                      className="gap-1.5 h-auto py-2.5 sm:py-3 px-2.5 sm:px-3 border-zinc-200 dark:border-zinc-800 text-zinc-500 shrink-0"
-                    >
-                      <ArrowUpDown
-                        className="w-3.5 h-3.5 transition-transform"
-                        style={{ transform: sortOrder === "asc" ? "scaleY(-1)" : "scaleY(1)" }}
-                      />
-                      <span className="hidden sm:inline text-xs font-semibold tracking-wide">
-                        {sortOrder === "desc" ? "Newest" : sortOrder === "asc" ? "Oldest" : "Last Modified"}
-                      </span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Toggle sort order</TooltipContent>
-                </Tooltip>
+                {/* Filters */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Pill Tabs for View Source */}
+                  <div className="bg-zinc-100/80 dark:bg-zinc-900/80 p-0.5 rounded-lg flex items-center border border-zinc-200/50 dark:border-zinc-800/50 h-9 sm:h-10 shrink-0">
+                    {[
+                      { id: "all", tooltip: "All Projects", icon: FolderOpen },
+                      { id: "owned", tooltip: "My Projects", icon: User },
+                      { id: "sharedWithMe", tooltip: "Shared with me", icon: UserCheck },
+                      { id: "sharedWithOthers", tooltip: "Shared with others", icon: Share2 },
+                    ].map((tab) => {
+                      const isActive = typeFilter === tab.id;
+                      const TabIcon = tab.icon;
+                      return (
+                        <Tooltip key={tab.id}>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                setTypeFilter(tab.id);
+                                setPage(1);
+                              }}
+                              className={cn(
+                                "p-1.5 sm:p-2 rounded-md transition-all duration-150 shrink-0 select-none flex items-center justify-center",
+                                isActive
+                                  ? "bg-white dark:bg-zinc-950 text-emerald-500 dark:text-emerald-400 shadow-sm border border-zinc-250/20 dark:border-zinc-800/50"
+                                  : "text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                              )}
+                            >
+                              <TabIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="font-mono text-[10px] tracking-wide uppercase">
+                            {tab.tooltip}
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
 
-                {allTags.length > 0 && (
-                  <select
-                    value={tagFilter}
-                    onChange={(e) => setTagFilter(e.target.value)}
-                    className="font-mono text-xs sm:text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md px-2 py-2.5 sm:py-3 focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 outline-none text-zinc-600 dark:text-zinc-400"
-                  >
-                    <option value="All">All Tags</option>
-                    {allTags.map(tag => (
-                      <option key={tag} value={tag}>{tag}</option>
-                    ))}
-                  </select>
-                )}
-
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refetch()}
-                      disabled={isLoadingEnvs}
-                      className="h-auto py-2.5 sm:py-3 w-9 sm:w-10 p-0 border-zinc-200 dark:border-zinc-800 text-zinc-500 shrink-0"
-                    >
-                      <RefreshCw className={cn("w-3.5 h-3.5", isLoadingEnvs && "animate-spin")} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Refresh</TooltipContent>
-                </Tooltip>
+                  {/* Sort & Tag Dropdown */}
+                  <SortTagDropdown
+                    sortOrder={sortOrder}
+                    onSortOrderChange={(sort) => {
+                      setSortOrder(sort);
+                      setPage(1);
+                    }}
+                    tagFilter={tagFilter}
+                    onTagFilterChange={(tag) => {
+                      setTagFilter(tag);
+                      setPage(1);
+                    }}
+                    allTags={allTags}
+                  />
+                </div>
               </div>
 
               {/* List */}
@@ -980,6 +1483,8 @@ export default function HomePage() {
                       onDownload={handleDownload}
                       onEdit={(e) => setUpdateTarget(e)}
                       onDelete={(e) => setDeleteTarget(e)}
+                      onShare={(e) => setShareTarget(e)}
+                      onLeave={(e) => setLeaveTarget(e)}
                     />
                   ))}
                 </div>
@@ -1020,6 +1525,57 @@ export default function HomePage() {
           </Tabs>
         </div>
       </div>
+
+      {/* ── Leave AlertDialog ─────────────────────────────────────────────── */}
+      <AlertDialog
+        open={!!leaveTarget}
+        onOpenChange={(o) => !isLeavingId && !o && setLeaveTarget(null)}
+      >
+        <AlertDialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-sm font-mono rounded-xl">
+          <AlertDialogHeader>
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 flex items-center justify-center shrink-0 text-red-500">
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <AlertDialogTitle className="text-sm font-bold tracking-wide">
+                  Leave Shared Project?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-xs mt-1.5 leading-5">
+                  Are you sure you want to leave{" "}
+                  <span className="text-zinc-800 dark:text-zinc-100 font-semibold break-all">
+                    {leaveTarget?.projectName}
+                  </span>
+                  ? You will lose access to its environment variables.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-2 mt-2">
+            <AlertDialogCancel disabled={!!isLeavingId} className="flex-1 text-xs sm:text-sm h-auto py-2.5">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleLeaveConfirm}
+              disabled={!!isLeavingId}
+              className="flex-1 bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-700 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 text-xs sm:text-sm gap-2 h-auto py-2.5"
+            >
+              {isLeavingId ? (
+                <><Spinner className="border-red-400/40" /><span>Leaving…</span></>
+              ) : (
+                <><LogOut className="w-3.5 h-3.5" /><span>Leave</span></>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ── Share Modal ───────────────────────────────────────────────────── */}
+      <ShareModal
+        env={shareTarget}
+        open={!!shareTarget}
+        onClose={() => setShareTarget(null)}
+      />
     </TooltipProvider>
   );
 }
