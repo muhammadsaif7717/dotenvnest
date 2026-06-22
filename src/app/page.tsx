@@ -631,7 +631,7 @@ function EnvItem({
           {idx + 1}
         </span>
         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
-          <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold font-mono">.ev</span>
+          <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold font-mono">.env</span>
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-1.5">
@@ -667,7 +667,7 @@ function EnvItem({
                   className="text-[9px] font-mono font-medium text-emerald-700 dark:text-emerald-455 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/10 border border-emerald-100/70 dark:border-emerald-900/30 flex items-center gap-1 normal-case shrink-0"
                 >
                   <Users className="w-2.5 h-2.5 text-emerald-555" />
-                  <span>Shared with {env.sharedWith.length} developer{env.sharedWith.length > 1 ? "s" : ""}</span>
+                  <span>Shared with {env.sharedWith.length}</span> 
                 </Badge>
               </div>
             ) : null}
