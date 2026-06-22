@@ -631,153 +631,148 @@ function EnvItem({
           {idx + 1}
         </span>
         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
-          <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold">.ev</span>
+          <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold font-mono">.ev</span>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex flex-col gap-1.5">
             <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">
               {env.projectName}
             </p>
             {env.isShared ? (
-              <Badge variant="outline" className="text-[8px] sm:text-[9px] font-normal text-zinc-400 dark:text-zinc-500 px-1 py-0 h-4 normal-case border-zinc-200 dark:border-zinc-850 shrink-0">
-                Shared by: {env.ownerEmail} ({env.userRole})
-              </Badge>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Badge
+                  variant="secondary"
+                  className="text-[9px] font-mono font-medium text-zinc-555 dark:text-zinc-455 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-800/40 flex items-center gap-1 normal-case shrink-0"
+                >
+                  <User className="w-2.5 h-2.5 text-zinc-400" />
+                  <span>Shared by:</span>
+                  <span className="font-semibold text-zinc-750 dark:text-zinc-250">{env.ownerEmail}</span>
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[8px] font-semibold tracking-wider uppercase px-1.5 py-0 h-4 rounded-full border shrink-0",
+                    env.userRole === "editor"
+                      ? "border-emerald-250/60 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400"
+                      : "border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-455"
+                  )}
+                >
+                  {env.userRole}
+                </Badge>
+              </div>
             ) : env.sharedWith && env.sharedWith.length > 0 ? (
-              <Badge variant="outline" className="text-[8px] sm:text-[9px] font-normal text-emerald-500 px-1 py-0 h-4 normal-case border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 shrink-0 flex items-center gap-0.5">
-                <Users className="w-2 h-2" />
-                Shared with {env.sharedWith.length}
-              </Badge>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Badge
+                  variant="secondary"
+                  className="text-[9px] font-mono font-medium text-emerald-700 dark:text-emerald-455 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/10 border border-emerald-100/70 dark:border-emerald-900/30 flex items-center gap-1 normal-case shrink-0"
+                >
+                  <Users className="w-2.5 h-2.5 text-emerald-555" />
+                  <span>Shared with {env.sharedWith.length} developer{env.sharedWith.length > 1 ? "s" : ""}</span>
+                </Badge>
+              </div>
             ) : null}
+            <p className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-600 flex flex-wrap gap-1.5 items-center">
+              <span>{keyCount} keys</span>
+              <span>·</span>
+              <span>{formatDate(env.createdAt)}</span>
+              {env.tags && env.tags.length > 0 && (
+                <>
+                  <span>·</span>
+                  {env.tags.map(tag => (
+                    <Badge key={tag} variant="secondary" className="text-[8px] sm:text-[9px] px-1.5 py-0 h-4 border-zinc-200 dark:border-zinc-800 bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{tag}</Badge>
+                  ))}
+                </>
+              )}
+            </p>
           </div>
-          <p className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-600 mt-0.5 flex flex-wrap gap-1.5 items-center">
-            <span>{keyCount} keys</span>
-            <span>·</span>
-            <span>{formatDate(env.createdAt)}</span>
-            {env.tags && env.tags.length > 0 && (
-              <>
-                <span>·</span>
-                {env.tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="text-[8px] sm:text-[9px] px-1 py-0 h-4 border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{tag}</Badge>
-                ))}
-              </>
-            )}
-          </p>
         </div>
       </div>
 
-      {/* Right: actions */}
-      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-2 sm:ml-3">
+      {/* Right: actions dock */}
+      <div className="flex items-center gap-1 p-0.5 sm:p-1 bg-zinc-100/50 dark:bg-zinc-800/10 border border-zinc-200/50 dark:border-zinc-800/50 rounded-lg shrink-0 ml-2 sm:ml-3">
         {/* Copy */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onCopy(env)}
-              className={cn(
-                "h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border transition-all",
-                isCopied
-                  ? "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-700 text-emerald-500 dark:text-emerald-400"
-                  : "border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200"
-              )}
-            >
-              {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              <span className="hidden md:inline">{isCopied ? "Copied" : "Copy"}</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Copy env content</TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onCopy(env)}
+          className={cn(
+            "h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide transition-all duration-200 rounded-md shadow-none hover:shadow-sm",
+            isCopied
+              ? "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold"
+              : "text-zinc-655 dark:text-zinc-400 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100"
+          )}
+        >
+          {isCopied ? <Check className="w-3.5 h-3.5 animate-in zoom-in-50" /> : <Copy className="w-3.5 h-3.5" />}
+          <span className="hidden md:inline">{isCopied ? "Copied" : "Copy"}</span>
+        </Button>
 
         {/* Download */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDownload(env)}
-              className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200"
-            >
-              <Download className="w-3 h-3" />
-              <span className="hidden md:inline">Download</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Download .env</TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDownload(env)}
+          className="h-7 sm:h-8 w-7 sm:w-8 md:w-auto md:px-2.5 p-0 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-550 dark:text-zinc-455 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100 hover:shadow-sm transition-all duration-200 rounded-md"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span className="hidden md:inline">Download</span>
+        </Button>
 
         {/* Edit */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(env)}
-              className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200"
-            >
-              <Pencil className="w-3 h-3" />
-              <span className="hidden md:inline">
-                {env.isShared && env.userRole === "viewer" ? "View" : "Edit"}
-              </span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{env.isShared && env.userRole === "viewer" ? "View project config" : "Edit project"}</TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(env)}
+          className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-650 dark:text-zinc-450 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100 hover:shadow-sm transition-all duration-200 rounded-md"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          <span className="hidden md:inline">
+            {env.isShared && env.userRole === "viewer" ? "View" : "Edit"}
+          </span>
+        </Button>
 
         {/* Conditionally render Share or Leave or Delete */}
         {env.isShared ? (
           /* Leave button for shared items */
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onLeave(env)}
-                className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:border-red-250 hover:bg-red-50 dark:hover:bg-red-950/20"
-              >
-                <UserMinus className="w-3 h-3" />
-                <span className="hidden md:inline">Leave</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Leave shared project</TooltipContent>
-          </Tooltip>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onLeave(env)}
+            className="h-7 sm:h-8 w-7 sm:w-8 md:w-auto md:px-2.5 p-0 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 hover:bg-red-500/10 dark:hover:bg-red-500/20 hover:text-red-550 dark:hover:text-red-400 hover:shadow-sm transition-all duration-200 rounded-md"
+          >
+            <UserMinus className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Leave</span>
+          </Button>
         ) : (
           /* Share & Delete buttons for owned items */
           <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onShare(env)}
-                  className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-emerald-600 hover:border-emerald-250 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20"
-                >
-                  <UserPlus className="w-3 h-3" />
-                  <span className="hidden md:inline">Share</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Manage access</TooltipContent>
-            </Tooltip>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onShare(env)}
+              className="h-7 sm:h-8 w-7 sm:w-8 md:w-auto md:px-2.5 p-0 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/20 hover:text-emerald-555 dark:hover:text-emerald-450 hover:shadow-sm transition-all duration-200 rounded-md"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Share</span>
+            </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDelete(env)}
-                  disabled={isDeleting}
-                  className="h-7 sm:h-8 px-2 sm:px-2.5 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide border-zinc-200 dark:border-zinc-700 text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50"
-                >
-                  {isDeleting ? <Spinner className="border-red-400/60" /> : <Trash2 className="w-3 h-3" />}
-                  <span className="hidden md:inline">Delete</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Delete project</TooltipContent>
-            </Tooltip>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(env)}
+              disabled={isDeleting}
+              className="h-7 sm:h-8 w-7 sm:w-8 md:w-auto md:px-2.5 p-0 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-555 dark:text-zinc-455 hover:bg-red-500/10 dark:hover:bg-red-500/20 hover:text-red-555 dark:hover:text-red-455 hover:shadow-sm disabled:opacity-50 transition-all duration-200 rounded-md"
+            >
+              {isDeleting ? <Spinner className="border-red-400/60" /> : <Trash2 className="w-3.5 h-3.5" />}
+              <span className="hidden md:inline">Delete</span>
+            </Button>
           </>
         )}
       </div>
     </div>
   );
 }
+
+
 
 import { SetupPinModal } from "@/components/SetupPinModal";
 
