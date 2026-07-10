@@ -35,7 +35,8 @@ export async function proxy(request: NextRequest) {
     const isAuthRateLimited = pathname.startsWith("/api/login") || 
                               pathname.startsWith("/api/signup") || 
                               pathname.startsWith("/api/verify") || 
-                              pathname.startsWith("/api/resend-code");
+                              pathname.startsWith("/api/resend-code") ||
+                              pathname.startsWith("/api/cli/pull"); // brute-force protect pull
                               
     if (isAuthRateLimited) {
       const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
