@@ -1,0 +1,10 @@
+🚀 Tired of sharing .env files over Slack?
+
+Meet DotEnvNest: A secure vault & CLI to manage, sync, and share your environment variables. 
+✅ AES-256 Encryption
+✅ Push, pull, diff from CLI
+✅ CI/CD Ready
+
+🌐 https://dotenvnest.vercel.app
+💻 https://github.com/muhammadsaif7717/dotenvnest
+📦 npm i -g dotenvnest

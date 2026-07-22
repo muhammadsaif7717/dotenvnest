@@ -151,6 +151,16 @@ dotenvnest pull backend --owner friend@email.com
 ```
 *Note: The `--owner` flag works perfectly with `push`, `pull`, `view`, and `diff`.*
 
+#### 3. Project Names with Spaces
+If your project name contains spaces (e.g. `Developer Saif`), you must wrap the name in double quotes when running CLI commands. Otherwise, the terminal will treat the second word as an invalid argument.
+```bash
+# ❌ This will throw an error
+dotenvnest pull Developer Saif
+
+# ✅ This will work perfectly
+dotenvnest pull "Developer Saif"
+```
+
 #### CI/CD & Automation (GitHub Actions, Vercel)
 You can use DotEnvNest in your CI/CD pipelines without running `dotenvnest login`. Simply export your auth token as an environment variable:
 ```bash

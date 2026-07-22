@@ -1,0 +1,28 @@
+🚀 Excited to share my latest open-source project: DotEnvNest! 🚀
+
+As a developer, I’ve always found it frustrating to securely manage and share .env files across different machines or with team members. Sending them over Slack, Discord, or email is a huge security risk, and manually copying them is just tedious.
+
+That's why I built DotEnvNest — a secure, seamless platform and CLI tool to manage, synchronize, and share your environment variables! 🔐
+
+🌟 What is DotEnvNest?
+It's a powerful central vault for your environment variables. Whether you are a solo developer switching between laptops, or a team collaborating on a project, DotEnvNest ensures your .env files are always synced and secure.
+
+🔥 Key Features:
+- 💻 Powerful CLI: A complete suite of commands to push, pull, view, diff, find, and securely share your .env files straight from your terminal. 
+- 🤝 Secure Sharing: Share your .env files with teammates via their email. You can grant 'read' or 'edit' access.
+- 🔄 File Variants: Easily manage .env.local, .env.production, etc. The CLI maps and organizes them automatically.
+- ⚙️ CI/CD Ready: Integrate it into GitHub Actions, GitLab CI, or Vercel effortlessly using an automation token.
+
+🛡️ How Secure is it?
+Security was my #1 priority. Your environment variables are encrypted using industry-standard AES-256-CBC encryption. The decryption requires a personal 6-digit PIN that only you know. Not even the database administrator can read your secrets!
+
+---
+I’d love for the developer community to try it out and share feedback!
+
+🌐 Live Website: https://dotenvnest.vercel.app
+💻 GitHub Repo: https://github.com/muhammadsaif7717/dotenvnest
+📦 NPM Package: npm install -g dotenvnest
+
+Drop a ⭐ on GitHub if you find it useful! Feedback and open-source contributions are highly appreciated. 👇
+
+#webdevelopment #javascript #typescript #nextjs #nodejs #opensource #security #cli #developerproductivity #dotenv #programming

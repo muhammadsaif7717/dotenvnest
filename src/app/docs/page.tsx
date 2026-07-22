@@ -272,6 +272,26 @@ dotenvnest pull backend --owner friend@email.com
                   * Note: The <code>--owner</code> flag works perfectly with <code>push</code>, <code>pull</code>, <code>view</code>, and <code>diff</code>.
                 </p>
               </div>
+
+              {/* Spaces in Names */}
+              <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                  3. Project Names with Spaces
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  If your project name contains spaces (e.g. <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">Developer Saif</code>), you must wrap the name in double quotes when running CLI commands. 
+                </p>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  Otherwise, the terminal will treat the second word as an invalid argument and throw a <strong>"too many arguments"</strong> error.
+                </p>
+                <CodeBlock>
+# ❌ This will throw an error
+dotenvnest pull Developer Saif
+
+# ✅ This will work perfectly
+dotenvnest pull "Developer Saif"
+                </CodeBlock>
+              </div>
             </div>
           </section>
 
