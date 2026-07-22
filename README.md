@@ -26,7 +26,7 @@
 - **🏷️ Tags & Filtering**: Organize projects with comma-separated tags. Filter and sort by newest, oldest, or last modified.
 - **🔍 Global Search**: Instantly find environment configurations across all your projects by name or tag.
 - **📋 Copy & Download**: One-click copy of the full `.env` content to clipboard, or download it directly as a `.env` file.
-- **🖥️ CLI Tool**: Use the `dotenvnest` CLI to **pull** env vars to a local file, **push** a local file to the cloud, or **run** any command with env vars injected — all secured with email + password authentication.
+- **🖥️ CLI Tool**: Use the `dotenvnest` CLI to **push**, **pull**, **view**, or **diff** env vars — all secured with email + password authentication.
 - **📧 Email Verification**: Secure sign-up flow with a 6-digit OTP sent to your email via Nodemailer/Gmail.
 - **🚦 Rate Limiting**: Auth endpoints are protected by an Upstash Redis sliding-window rate limiter (5 requests / 15 min).
 - **🎨 Dark / Light Mode**: Full dark and light theme support powered by `next-themes`.
@@ -92,6 +92,14 @@ Lists your own projects and any projects that have been shared with you, along w
 ```bash
 dotenvnest find
 dotenvnest find api
+```
+
+#### `view` & `diff` — Inspect without downloading
+- **`view`**: Prints the environment variables of a project securely in your terminal without saving a local `.env` file.
+- **`diff`**: Compares your local `.env` file with the cloud version and highlights what was added, removed, or changed.
+```bash
+dotenvnest view <project-name>
+dotenvnest diff <project-name>
 ```
 
 #### `del` (or `delete`) — Delete a project

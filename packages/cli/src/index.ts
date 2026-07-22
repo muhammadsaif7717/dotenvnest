@@ -12,6 +12,8 @@ import { pullCommand } from "./commands/pull";
 import { pushCommand } from "./commands/push";
 import { shareCommand } from "./commands/share";
 import { unshareCommand } from "./commands/unshare";
+import { viewCommand } from "./commands/view";
+import { diffCommand } from "./commands/diff";
 
 // Import package.json using require to avoid module resolution issues
 const pkg = require("../package.json");
@@ -35,6 +37,8 @@ loginCommand(program);
 pushCommand(program);
 pullCommand(program);
 findCommand(program);
+viewCommand(program);
+diffCommand(program);
 shareCommand(program);
 unshareCommand(program);
 leaveCommand(program);

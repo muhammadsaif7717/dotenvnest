@@ -133,6 +133,27 @@ export default function DocsPage() {
             />
 
             <CommandDoc
+              command="view <project-name>"
+              description="Securely prints the environment variables of a project in your terminal without saving a local file."
+              icon={Search}
+              example="dotenvnest view my-api-server"
+              options={[
+                { name: "--owner <email>", desc: "Specify the owner email (if needed for shared projects)" }
+              ]}
+            />
+
+            <CommandDoc
+              command="diff <project-name>"
+              description="Compares your local .env file with the one saved in the cloud, highlighting added, removed, or changed variables."
+              icon={Search}
+              example="dotenvnest diff my-api-server"
+              options={[
+                { name: "-f, --file <filename>", desc: "Specify a different local file to compare (default: .env)" },
+                { name: "--owner <email>", desc: "Specify the owner email (if needed for shared projects)" }
+              ]}
+            />
+
+            <CommandDoc
               command="del <project-name>"
               description="Permanently deletes a project that you own. Shared projects cannot be deleted."
               icon={UserMinus}
