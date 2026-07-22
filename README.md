@@ -121,6 +121,44 @@ Removes your access from a project that someone else has shared with you.
 dotenvnest leave <project-name>
 ```
 
+### 🧠 Advanced Usage & Tips
+
+#### 1. Understanding File Variants (`-f` / `--file`)
+By default, the CLI looks for a file named `.env`. If you want to use a variant like `.env.local` or `.env.production`, you can use the `-f` flag.
+When you push a variant, the CLI automatically maps it to a new project name in the cloud!
+```bash
+# Pushes to a project named "my-api"
+dotenvnest push my-api
+
+# Pushes to a new project named "my-api.local"
+dotenvnest push my-api -f .env.local
+
+# Pushes to a new project named "my-api.production"
+dotenvnest push my-api -f .env.production
+```
+*Tip: When you run `dotenvnest find`, you will see all your variants listed as separate projects, keeping everything perfectly organized.*
+
+#### 2. Handling Name Collisions (`--owner`)
+Imagine you have a project named `backend`. Your friend also shares their project named `backend` with you.
+If you run `dotenvnest pull backend`, the CLI gets confused and will ask you to specify the owner to avoid mistakes.
+You can fix this by using the `--owner` flag:
+```bash
+# Pulls YOUR backend project
+dotenvnest pull backend
+
+# Pulls your FRIEND'S backend project
+dotenvnest pull backend --owner friend@email.com
+```
+*Note: The `--owner` flag works perfectly with `push`, `pull`, `view`, and `diff`.*
+
+#### CI/CD & Automation (GitHub Actions, Vercel)
+You can use DotEnvNest in your CI/CD pipelines without running `dotenvnest login`. Simply export your auth token as an environment variable:
+```bash
+export DOTENVNEST_TOKEN="your_cli_token_here"
+npx dotenvnest pull my-api-server
+```
+*(You can find your token inside `~/.dotenvnest-config.json` after logging in on your local machine).*
+
 #### `docs` & `logout`
 - `dotenvnest docs`: Opens the full documentation in your browser.
 - `dotenvnest logout`: Clears your local authentication session.

@@ -1,5 +1,5 @@
 import React from "react";
-import { Terminal, Download, LogIn, Upload, CloudDownload, Search, Share2, UserMinus } from "lucide-react";
+import { Terminal, Download, LogIn, Upload, CloudDownload, Search, Share2, UserMinus, Settings } from "lucide-react";
 
 export const metadata = {
   title: "CLI Documentation - Dotenvnest",
@@ -190,6 +190,89 @@ export default function DocsPage() {
               icon={LogIn}
               example="dotenvnest logout"
             />
+          </section>
+
+          {/* CI/CD Section */}
+          <section className="mb-16">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
+              <Settings className="w-6 h-6 text-emerald-500" />
+              CI/CD & Automation
+            </h2>
+            <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+              <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                You can easily integrate <strong>DotEnvNest</strong> into your automated pipelines (like GitHub Actions, GitLab CI, or Vercel) without needing an interactive browser login.
+              </p>
+              <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                Simply set the <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">DOTENVNEST_TOKEN</code> environment variable in your pipeline settings. The CLI will automatically use it for authentication.
+              </p>
+              <CodeBlock>
+# Example in a CI script
+export DOTENVNEST_TOKEN="your_cli_token_here"
+npx dotenvnest pull my-api-server
+              </CodeBlock>
+              <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-4 italic">
+                * Tip: You can find your personal CLI token inside the ~/.dotenvnest-config.json file on your computer after logging in locally.
+              </p>
+            </div>
+          </section>
+
+          {/* Advanced Usage Section */}
+          <section className="mb-16">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
+              <Terminal className="w-6 h-6 text-emerald-500" />
+              Advanced Usage & Tips
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Variants */}
+              <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                  1. Understanding File Variants (-f / --file)
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  By default, the CLI looks for a file named <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">.env</code>. But what if you have <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">.env.local</code> or <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">.env.production</code>? 
+                </p>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  If you use the <strong>-f</strong> flag to push a variant, the CLI automatically maps it to a new project name in the cloud!
+                </p>
+                <CodeBlock>
+# Pushes to project "my-api"
+dotenvnest push my-api
+
+# Pushes to a new project named "my-api.local"
+dotenvnest push my-api -f .env.local
+
+# Pushes to a new project named "my-api.production"
+dotenvnest push my-api -f .env.production
+                </CodeBlock>
+                <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-4 italic">
+                  * Tip: When you run <code>dotenvnest find</code>, you will clearly see all your variants listed as separate projects, keeping everything perfectly organized.
+                </p>
+              </div>
+
+              {/* Owner Collision */}
+              <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                  2. Handling Name Collisions (--owner)
+                </h3>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  Imagine you have a project named <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">backend</code>. Your friend also shares their project named <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">backend</code> with you.
+                </p>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-4">
+                  If you run <code>dotenvnest pull backend</code>, the CLI gets confused: "Which backend do you want?" It will throw an error asking you to specify the owner. You can fix this by using the <strong>--owner</strong> flag.
+                </p>
+                <CodeBlock>
+# Pulls YOUR backend project
+dotenvnest pull backend
+
+# Pulls your FRIEND'S backend project
+dotenvnest pull backend --owner friend@email.com
+                </CodeBlock>
+                <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-4 italic">
+                  * Note: The <code>--owner</code> flag works perfectly with <code>push</code>, <code>pull</code>, <code>view</code>, and <code>diff</code>.
+                </p>
+              </div>
+            </div>
           </section>
 
           <div className="mt-16 pt-8 border-t border-zinc-200 dark:border-zinc-800 text-center pb-8">

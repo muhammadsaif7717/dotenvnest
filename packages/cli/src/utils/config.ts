@@ -17,6 +17,10 @@ export function saveConfig(config: Config) {
 }
 
 export function readConfig(): Config {
+  if (process.env.DOTENVNEST_TOKEN) {
+    return { token: process.env.DOTENVNEST_TOKEN };
+  }
+
   try {
     if (fs.existsSync(CONFIG_PATH)) {
       const data = fs.readFileSync(CONFIG_PATH, "utf8");
