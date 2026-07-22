@@ -68,7 +68,7 @@ npm install -g dotenvnest
 ### Commands
 
 #### `login` — Authenticate the CLI
-Securely authenticates the CLI by opening your browser. Once you log in and enter your PIN, your terminal is authenticated!
+Securely authenticates the CLI by opening your browser. If you are already logged in to the web application, the CLI will authenticate automatically! Otherwise, log in normally and your terminal will be authenticated.
 ```bash
 dotenvnest login
 ```
@@ -95,10 +95,10 @@ dotenvnest find api
 ```
 
 #### `share` & `unshare` — Manage Access
-Share a project directly from your terminal. Access can be either `read` or `edit`.
+Share a project directly from your terminal. Access can be either `read` or `edit`. You can also pass multiple comma-separated emails.
 ```bash
-dotenvnest share my-api-server "colleague@example.com" --access edit
-dotenvnest unshare my-api-server "colleague@example.com"
+dotenvnest share my-api-server "colleague@example.com, manager@example.com" --access edit
+dotenvnest unshare my-api-server "colleague@example.com, manager@example.com"
 ```
 
 #### `docs` & `logout`
@@ -108,60 +108,6 @@ dotenvnest unshare my-api-server "colleague@example.com"
 ---
 
 
-
-## 📁 Project Structure
-
-```
-dotenvnest/
-├── bin/
-│   └── dotenvnest.js        # CLI entry point (pull / push / run)
-├── public/                  # Static assets, manifest, service worker
-├── src/
-│   ├── app/
-│   │   ├── api/             # Next.js API routes
-│   │   │   ├── account/     # Account management
-│   │   │   ├── cli/
-│   │   │   │   ├── route.ts       # GET  /api/cli      — run command (API key auth)
-│   │   │   │   ├── pull/
-│   │   │   │   │   └── route.ts   # POST /api/cli/pull — email+password auth
-│   │   │   │   └── push/
-│   │   │   │       └── route.ts   # POST /api/cli/push — email+password auth, upsert
-│   │   │   ├── delete/      # Delete env entry
-│   │   │   ├── get/         # Fetch all env entries
-│   │   │   ├── login/       # Auth: login
-│   │   │   ├── logout/      # Auth: logout
-│   │   │   ├── post/        # Create new env entry
-│   │   │   ├── resend-code/ # Resend OTP
-│   │   │   ├── share/       # Sharing & collaboration
-│   │   │   ├── signup/      # Auth: register
-│   │   │   ├── update/      # Update env entry
-│   │   │   ├── user/        # User info
-│   │   │   └── verify/      # Email OTP verification
-│   │   ├── account/         # Account settings page
-│   │   ├── login/           # Login page
-│   │   ├── signup/          # Signup page
-│   │   ├── verify/          # Email verification page
-│   │   ├── layout.tsx       # Root layout (metadata, fonts, PWA)
-│   │   └── page.tsx         # Main dashboard (env manager)
-│   ├── components/
-│   │   ├── ui/              # shadcn/ui components
-│   │   └── SetupPinModal.tsx
-│   ├── contexts/            # React context providers
-│   ├── lib/
-│   │   ├── api.ts           # Client-side API helpers
-│   │   ├── connectDb.ts     # MongoDB connection utility
-│   │   ├── crypto.ts        # AES-256-CBC encryption helpers
-│   │   ├── diff.ts          # Env diff computation
-│   │   ├── email.ts         # Nodemailer / OTP utilities
-│   │   ├── session.ts       # JWT sign/verify helpers
-│   │   └── utils.ts         # General utilities
-│   └── proxy.ts             # Next.js middleware (auth + rate limit)
-├── .env                     # Local environment variables (git-ignored)
-├── package.json
-└── tsconfig.json
-```
-
----
 
 ## 🔐 Security Model
 

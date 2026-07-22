@@ -73,7 +73,7 @@ export function loginCommand(program: Command) {
         const address = server.address();
         const port = typeof address === "string" ? 0 : address?.port;
         
-        const loginUrl = `https://dotenvnest.vercel.app/login?cli_port=${port}`;
+        const loginUrl = `https://dotenvnest.vercel.app/cli-auth?cli_port=${port}`;
         
         console.log(chalk.gray(`Opening browser to: ${loginUrl}`));
         

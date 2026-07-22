@@ -19,8 +19,7 @@ export function pushCommand(program: Command) {
         return;
       }
 
-      // Normalize project name
-      const normalizedProjectName = projectName.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const finalProjectName = projectName.trim();
 
       const envPath = path.resolve(process.cwd(), options.file);
       
@@ -49,16 +48,16 @@ export function pushCommand(program: Command) {
          }
       }
 
-      const spinner = ora(`Pushing ${chalk.cyan(options.file)} to project ${chalk.bold(normalizedProjectName)}...`).start();
+      const spinner = ora(`Pushing ${chalk.cyan(options.file)} to project ${chalk.bold(finalProjectName)}...`).start();
 
       try {
         await api.post("/push", {
-          projectName: normalizedProjectName,
+          projectName: finalProjectName,
           envContent,
           ownerEmail: options.owner
         });
         
-        spinner.succeed(chalk.green(`Successfully pushed to ${normalizedProjectName}!`));
+        spinner.succeed(chalk.green(`Successfully pushed to ${finalProjectName}!`));
       } catch (error: any) {
         spinner.fail(chalk.red("Push failed."));
         const message = getApiError(error);

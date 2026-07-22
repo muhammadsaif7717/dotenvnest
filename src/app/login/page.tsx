@@ -126,7 +126,13 @@ export default function LoginPage() {
         throw new Error(data?.message || "Invalid credentials.");
       }
 
-      router.push("/");
+      const cliPort = sessionStorage.getItem("cli_port");
+      if (cliPort) {
+        sessionStorage.removeItem("cli_port");
+        router.push(`/cli-auth?cli_port=${cliPort}`);
+      } else {
+        router.push("/");
+      }
       router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");

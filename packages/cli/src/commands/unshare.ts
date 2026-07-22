@@ -15,20 +15,24 @@ export function unshareCommand(program: Command) {
         return;
       }
 
-      const normalizedProjectName = projectName.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const finalProjectName = projectName.trim();
 
-      const spinner = ora(`Removing access for ${email} from ${chalk.bold(normalizedProjectName)}...`).start();
+      const emails = email.split(",").map((e: string) => e.trim()).filter((e: string) => e.length > 0);
 
-      try {
-        const res = await api.post("/unshare", {
-          projectName: normalizedProjectName,
-          email
-        });
-        
-        spinner.succeed(chalk.green(res.data.message));
-      } catch (error: any) {
-        spinner.fail(chalk.red("Failed to unshare project."));
-        console.log(chalk.red(`Error: ${getApiError(error)}`));
+      for (const e of emails) {
+        const spinner = ora(`Revoking access to project ${chalk.bold(finalProjectName)} for ${chalk.cyan(e)}...`).start();
+
+        try {
+          const res = await api.post("/unshare", {
+            projectName: finalProjectName,
+            email: e
+          });
+          
+          spinner.succeed(chalk.green(`Successfully revoked access to ${finalProjectName} for ${e}!`));
+        } catch (error: any) {
+          spinner.fail(chalk.red(`Failed to unshare project with ${e}.`));
+          console.log(chalk.red(`Error: ${getApiError(error)}`));
+        }
       }
     });
 }

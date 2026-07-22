@@ -20,7 +20,7 @@ export function pullCommand(program: Command) {
         return;
       }
 
-      const normalizedProjectName = projectName.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const finalProjectName = projectName.trim();
       const envPath = path.resolve(process.cwd(), options.file);
       
       // Warn about overwrite
@@ -40,12 +40,12 @@ export function pullCommand(program: Command) {
         }
       }
 
-      const spinner = ora(`Pulling project ${chalk.bold(normalizedProjectName)}...`).start();
+      const spinner = ora(`Pulling project ${chalk.bold(finalProjectName)}...`).start();
 
       try {
         const res = await api.get("/pull", {
           params: {
-            projectName: normalizedProjectName,
+            projectName: finalProjectName,
             ownerEmail: options.owner
           }
         });

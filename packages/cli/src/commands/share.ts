@@ -17,21 +17,25 @@ export function shareCommand(program: Command) {
       }
 
       const access = options.access === "edit" ? "edit" : "read";
-      const normalizedProjectName = projectName.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const finalProjectName = projectName.trim();
 
-      const spinner = ora(`Sharing project ${chalk.bold(normalizedProjectName)} with ${email}...`).start();
+      const emails = email.split(",").map((e: string) => e.trim()).filter((e: string) => e.length > 0);
 
-      try {
-        const res = await api.post("/share", {
-          projectName: normalizedProjectName,
-          email,
-          access
-        });
-        
-        spinner.succeed(chalk.green(res.data.message));
-      } catch (error: any) {
-        spinner.fail(chalk.red("Failed to share project."));
-        console.log(chalk.red(`Error: ${getApiError(error)}`));
+      for (const e of emails) {
+        const spinner = ora(`Sharing project ${chalk.bold(finalProjectName)} with ${chalk.cyan(e)}...`).start();
+
+        try {
+          const res = await api.post("/share", {
+            projectName: finalProjectName,
+            email: e,
+            access
+          });
+          
+          spinner.succeed(chalk.green(res.data.message));
+        } catch (error: any) {
+          spinner.fail(chalk.red(`Failed to share project with ${e}.`));
+          console.log(chalk.red(`Error: ${getApiError(error)}`));
+        }
       }
     });
 }

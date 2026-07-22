@@ -1,6 +1,6 @@
 {
   "name": "dotenvnest",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Securely manage and sync your .env files across projects.",
   "main": "dist/index.js",
   "bin": {

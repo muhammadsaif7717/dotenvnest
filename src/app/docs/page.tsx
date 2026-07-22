@@ -98,7 +98,7 @@ export default function DocsPage() {
 
             <CommandDoc
               command="login"
-              description="Authenticates the CLI with your Dotenvnest account securely via the browser."
+              description="Authenticates the CLI securely via your browser. If you are already logged in to the web application, it authenticates automatically."
               icon={LogIn}
               example="dotenvnest login"
             />
@@ -133,20 +133,20 @@ export default function DocsPage() {
             />
 
             <CommandDoc
-              command="share <project-name> <email>"
-              description="Shares a project with another user. The user must have a Dotenvnest account."
+              command="share <project-name> <emails>"
+              description="Shares a project with one or more users (comma-separated). The users must have a Dotenvnest account."
               icon={Share2}
-              example='dotenvnest share my-api-server "colleague@example.com" --access edit'
+              example='dotenvnest share my-api-server "user1@example.com, user2@example.com" --access edit'
               options={[
                 { name: "--access <level>", desc: "Access level: 'read' or 'edit' (default: read)" }
               ]}
             />
 
             <CommandDoc
-              command="unshare <project-name> <email>"
-              description="Revokes access to a shared project from a specific user."
+              command="unshare <project-name> <emails>"
+              description="Revokes access to a shared project from one or more users (comma-separated)."
               icon={UserMinus}
-              example='dotenvnest unshare my-api-server "colleague@example.com"'
+              example='dotenvnest unshare my-api-server "user1@example.com, user2@example.com"'
             />
 
             <CommandDoc
