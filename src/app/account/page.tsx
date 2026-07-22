@@ -27,111 +27,244 @@ import { cn } from "@/lib/utils";
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const Icon = {
   Sun: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <circle cx="12" cy="12" r="5" />
-      <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-      <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
     </svg>
   ),
   Moon: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
   Lock: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   ),
   Shield: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   ),
   User: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
   ),
   Mail: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
       <polyline points="22,6 12,13 2,6" />
     </svg>
   ),
   Eye: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   ),
   EyeOff: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   ),
   Warn: () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-px">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="shrink-0 mt-px"
+    >
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-      <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   ),
   Check: () => (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0 mt-px">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      className="shrink-0 mt-px"
+    >
       <polyline points="20 6 9 17 4 12" />
     </svg>
   ),
   ArrowLeft: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+    >
       <line x1="19" y1="12" x2="5" y2="12" />
       <polyline points="12 19 5 12 12 5" />
     </svg>
   ),
   ChevronRight: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+    >
       <polyline points="9 18 15 12 9 6" />
     </svg>
   ),
   Menu: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <line x1="3" y1="12" x2="21" y2="12" />
       <line x1="3" y1="6" x2="21" y2="6" />
       <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   ),
   Logout: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+    >
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
       <line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   ),
   Home: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+    >
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
   ),
   Terminal: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <polyline points="4 17 10 11 4 5" />
       <line x1="12" y1="19" x2="20" y2="19" />
     </svg>
   ),
   Copy: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
   ),
   CheckCircle: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
       <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
@@ -189,9 +322,7 @@ function StyledInput({
         style={{ fontFamily: "'Courier New', monospace" }}
       />
       {right && (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-          {right}
-        </div>
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">{right}</div>
       )}
     </div>
   );
@@ -204,21 +335,31 @@ function ModalTitleBar({ filename }: { filename: string }) {
       <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
       <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
       <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
-      <span className="ml-2 text-[10px] text-zinc-400 dark:text-zinc-600 tracking-wider font-mono">{filename}</span>
+      <span className="ml-2 text-[10px] text-zinc-400 dark:text-zinc-600 tracking-wider font-mono">
+        {filename}
+      </span>
     </div>
   );
 }
 
 // ─── Alert inline ─────────────────────────────────────────────────────────────
-function InlineAlert({ type, message }: { type: "error" | "success"; message: string }) {
+function InlineAlert({
+  type,
+  message,
+}: {
+  type: "error" | "success";
+  message: string;
+}) {
   const isError = type === "error";
   return (
-    <div className={cn(
-      "flex items-start gap-2 px-3 py-2.5 rounded-lg border text-[11px] font-mono",
-      isError
-        ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-500 dark:text-red-400"
-        : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400"
-    )}>
+    <div
+      className={cn(
+        "flex items-start gap-2 px-3 py-2.5 rounded-lg border text-[11px] font-mono",
+        isError
+          ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-500 dark:text-red-400"
+          : "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400"
+      )}
+    >
       {isError ? <Icon.Warn /> : <Icon.Check />}
       <span>{message}</span>
     </div>
@@ -263,7 +404,10 @@ function ModalFooter({
         )}
       >
         {loading ? (
-          <><Spinner className="border-white/40" /><span>{loadingLabel}</span></>
+          <>
+            <Spinner className="border-white/40" />
+            <span>{loadingLabel}</span>
+          </>
         ) : (
           confirmLabel
         )}
@@ -337,14 +481,17 @@ export default function AccountPage() {
   const [oldPassword, setOldPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [activeModal, setActiveModal] = useState<"email" | "password" | "pin" | "verify" | "otp" | null>(null);
+  const [activeModal, setActiveModal] = useState<
+    "email" | "password" | "pin" | "verify" | "otp" | null
+  >(null);
 
-  const [pendingAction, setPendingAction] = useState<"email" | "password" | "pin" | null>(null);
+  const [pendingAction, setPendingAction] = useState<
+    "email" | "password" | "pin" | null
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
@@ -372,9 +519,14 @@ export default function AccountPage() {
 
   const resetForms = () => {
     setEmailInput(currentEmail);
-    setPassword(""); setConfirmPassword("");
-    setCurrentPin(""); setNewPin(""); setConfirmNewPin("");
-    setOldPassword(""); setError(null); setSuccess(null);
+    setPassword("");
+    setConfirmPassword("");
+    setCurrentPin("");
+    setNewPin("");
+    setConfirmNewPin("");
+    setOldPassword("");
+    setError(null);
+    setSuccess(null);
   };
 
   const closeModal = () => {
@@ -389,7 +541,8 @@ export default function AccountPage() {
   };
 
   const proceedToVerify = (action: "email" | "password" | "pin") => {
-    setError(null); setSuccess(null);
+    setError(null);
+    setSuccess(null);
     setPendingAction(action);
     setActiveModal("verify");
   };
@@ -397,7 +550,11 @@ export default function AccountPage() {
   const accountMutation = useMutation({
     mutationFn: async () => {
       if (pendingAction === "email" || pendingAction === "password") {
-        const payload: { oldPassword: string; email?: string; password?: string } = { oldPassword };
+        const payload: {
+          oldPassword: string;
+          email?: string;
+          password?: string;
+        } = { oldPassword };
         if (pendingAction === "email") payload.email = emailInput.trim();
         if (pendingAction === "password") payload.password = password;
         const res = await fetch("/api/account", {
@@ -406,7 +563,8 @@ export default function AccountPage() {
           body: JSON.stringify(payload),
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data?.message || "Failed to update account.");
+        if (!res.ok)
+          throw new Error(data?.message || "Failed to update account.");
         return data;
       } else if (pendingAction === "pin") {
         const res = await fetch("/api/user/change-pin", {
@@ -439,28 +597,48 @@ export default function AccountPage() {
 
   const handleVerifyAndSave = () => {
     if (!oldPassword) return;
-    setIsLoading(true); setError(null); setSuccess(null);
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
     accountMutation.mutate();
   };
 
-
-  const isEmailValid = emailInput.trim().length > 0 && emailInput !== currentEmail;
+  const isEmailValid =
+    emailInput.trim().length > 0 && emailInput !== currentEmail;
   const isPasswordValid = password.length > 0 && password === confirmPassword;
-  const isPinValid = currentPin.length === 6 && newPin.length === 6 && newPin === confirmNewPin;
+  const isPinValid =
+    currentPin.length === 6 && newPin.length === 6 && newPin === confirmNewPin;
 
-  const dialogBaseClass = "w-[calc(100vw-1.5rem)] sm:max-w-sm p-0 gap-0 overflow-hidden font-mono rounded-xl border border-zinc-200 dark:border-zinc-800";
+  const dialogBaseClass =
+    "w-[calc(100vw-1.5rem)] sm:max-w-sm p-0 gap-0 overflow-hidden font-mono rounded-xl border border-zinc-200 dark:border-zinc-800";
 
   return (
     <div className="min-h-screen min-h-dvh bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-mono transition-colors duration-200">
-
       {/* Grid background – light */}
-      <div className="fixed inset-0 pointer-events-none dark:hidden" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+      <div
+        className="fixed inset-0 pointer-events-none dark:hidden"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
       {/* Grid background – dark */}
-      <div className="fixed inset-0 pointer-events-none hidden dark:block" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+      <div
+        className="fixed inset-0 pointer-events-none hidden dark:block"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
       {/* ── Side Menu Sheet ───────────────────────────────────────────────── */}
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <SheetContent side="right" className="w-[270px] sm:w-72 font-mono p-0 border-l border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+        <SheetContent
+          side="right"
+          className="w-[270px] sm:w-72 font-mono p-0 border-l border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950"
+        >
           <SheetHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b border-zinc-100 dark:border-zinc-800">
             <SheetTitle className="text-[11px] tracking-[0.25em] uppercase text-zinc-400 dark:text-zinc-600 font-bold text-left">
               Menu
@@ -469,7 +647,10 @@ export default function AccountPage() {
           <div className="p-4 sm:p-5 flex flex-col gap-2.5">
             <Button
               variant="outline"
-              onClick={() => { setIsMenuOpen(false); router.push("/"); }}
+              onClick={() => {
+                setIsMenuOpen(false);
+                router.push("/");
+              }}
               className="justify-start gap-3 h-10 sm:h-11 text-sm font-semibold tracking-wide border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100"
             >
               <Icon.Home />
@@ -492,7 +673,10 @@ export default function AccountPage() {
             <Button
               variant="outline"
               className="justify-start gap-3 h-10 sm:h-11 text-sm font-semibold tracking-wide border-red-100 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/30 text-red-500 dark:text-red-400 hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-950/50"
-              onClick={() => { setIsMenuOpen(false); handleLogout(); }}
+              onClick={() => {
+                setIsMenuOpen(false);
+                handleLogout();
+              }}
             >
               <Icon.Logout />
               Logout
@@ -503,11 +687,19 @@ export default function AccountPage() {
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <header className="relative border-b border-zinc-100 dark:border-zinc-900 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
+        <Link
+          href="/"
+          className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
+        >
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-base sm:text-lg font-bold tracking-tight" style={{ fontFamily: "'Courier New', monospace" }}>
+          <span
+            className="text-base sm:text-lg font-bold tracking-tight"
+            style={{ fontFamily: "'Courier New', monospace" }}
+          >
             <span className="text-emerald-500 dark:text-emerald-400">.</span>env
-            <span className="text-zinc-300 dark:text-zinc-700 ml-1.5 text-xs sm:text-sm font-semibold">nest</span>
+            <span className="text-zinc-300 dark:text-zinc-700 ml-1.5 text-xs sm:text-sm font-semibold">
+              nest
+            </span>
           </span>
         </Link>
         <Button
@@ -523,7 +715,6 @@ export default function AccountPage() {
 
       {/* ── Main ─────────────────────────────────────────────────────────── */}
       <main className="relative max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
-
         {/* Page heading */}
         <div className="mb-8 sm:mb-10">
           <div className="flex items-center gap-2 mb-2">
@@ -532,7 +723,10 @@ export default function AccountPage() {
               Account Settings
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ fontFamily: "'Courier New', monospace" }}>
+          <h1
+            className="text-2xl sm:text-3xl font-bold tracking-tight"
+            style={{ fontFamily: "'Courier New', monospace" }}
+          >
             Update Profile
           </h1>
           <p className="text-zinc-400 dark:text-zinc-600 text-xs sm:text-sm mt-1.5 tracking-wide">
@@ -547,7 +741,9 @@ export default function AccountPage() {
             <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
             <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
             <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
-            <span className="ml-2 text-[10px] text-zinc-400 dark:text-zinc-600 tracking-wider">account.env</span>
+            <span className="ml-2 text-[10px] text-zinc-400 dark:text-zinc-600 tracking-wider">
+              account.env
+            </span>
           </div>
 
           {/* Content */}
@@ -584,8 +780,6 @@ export default function AccountPage() {
           </div>
         </div>
 
-
-
         {/* Footer note */}
         <p className="text-center text-[9px] sm:text-[10px] text-zinc-200 dark:text-zinc-800 mt-6 sm:mt-8 tracking-widest uppercase">
           DOTENVNEST · Secure · Private
@@ -597,7 +791,10 @@ export default function AccountPage() {
       ══════════════════════════════════════════════════════════════════ */}
 
       {/* 1. Email Modal */}
-      <Dialog open={activeModal === "email"} onOpenChange={(o: boolean) => !o && closeModal()}>
+      <Dialog
+        open={activeModal === "email"}
+        onOpenChange={(o: boolean) => !o && closeModal()}
+      >
         <DialogContent className={dialogBaseClass}>
           <ModalTitleBar filename="change-email.env" />
           <DialogHeader className="px-5 sm:px-6 pt-5 pb-0">
@@ -620,7 +817,9 @@ export default function AccountPage() {
               <StyledInput
                 type="email"
                 value={emailInput}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmailInput(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEmailInput(e.target.value)
+                }
                 placeholder="new@example.com"
                 autoComplete="email"
                 icon={<Icon.Mail />}
@@ -636,7 +835,10 @@ export default function AccountPage() {
       </Dialog>
 
       {/* 2. Password Modal */}
-      <Dialog open={activeModal === "password"} onOpenChange={(o: boolean) => !o && closeModal()}>
+      <Dialog
+        open={activeModal === "password"}
+        onOpenChange={(o: boolean) => !o && closeModal()}
+      >
         <DialogContent className={dialogBaseClass}>
           <ModalTitleBar filename="change-password.env" />
           <DialogHeader className="px-5 sm:px-6 pt-5 pb-0">
@@ -653,7 +855,9 @@ export default function AccountPage() {
               <StyledInput
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
                 placeholder="••••••••••••"
                 autoComplete="new-password"
                 icon={<Icon.Lock />}
@@ -673,11 +877,15 @@ export default function AccountPage() {
               <StyledInput
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setConfirmPassword(e.target.value)
+                }
                 placeholder="••••••••••••"
                 autoComplete="new-password"
                 icon={<Icon.Lock />}
-                error={confirmPassword.length > 0 && password !== confirmPassword}
+                error={
+                  confirmPassword.length > 0 && password !== confirmPassword
+                }
                 right={
                   <button
                     type="button"
@@ -707,7 +915,10 @@ export default function AccountPage() {
       </Dialog>
 
       {/* 3. PIN Modal */}
-      <Dialog open={activeModal === "pin"} onOpenChange={(o: boolean) => !o && closeModal()}>
+      <Dialog
+        open={activeModal === "pin"}
+        onOpenChange={(o: boolean) => !o && closeModal()}
+      >
         <DialogContent className={dialogBaseClass}>
           <ModalTitleBar filename="change-pin.env" />
           <DialogHeader className="px-5 sm:px-6 pt-5 pb-0">
@@ -720,9 +931,23 @@ export default function AccountPage() {
           </DialogHeader>
           <div className="px-5 sm:px-6 py-5 space-y-4">
             {[
-              { label: "Current PIN", value: currentPin, setter: setCurrentPin },
-              { label: "New PIN", value: newPin, setter: setNewPin, error: newPin.length > 0 && newPin.length !== 6 },
-              { label: "Confirm New PIN", value: confirmNewPin, setter: setConfirmNewPin, error: confirmNewPin.length > 0 && newPin !== confirmNewPin },
+              {
+                label: "Current PIN",
+                value: currentPin,
+                setter: setCurrentPin,
+              },
+              {
+                label: "New PIN",
+                value: newPin,
+                setter: setNewPin,
+                error: newPin.length > 0 && newPin.length !== 6,
+              },
+              {
+                label: "Confirm New PIN",
+                value: confirmNewPin,
+                setter: setConfirmNewPin,
+                error: confirmNewPin.length > 0 && newPin !== confirmNewPin,
+              },
             ].map(({ label, value, setter, error }) => (
               <div key={label} className="space-y-1.5">
                 <FieldLabel>{label}</FieldLabel>
@@ -731,7 +956,9 @@ export default function AccountPage() {
                   inputMode="numeric"
                   maxLength={6}
                   value={value}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setter(e.target.value.replace(/\D/g, "").slice(0, 6))
+                  }
                   placeholder="••••••"
                   icon={<Icon.Lock />}
                   error={error}
@@ -769,7 +996,9 @@ export default function AccountPage() {
       {/* 4. Verify Identity */}
       <Dialog
         open={activeModal === "verify"}
-        onOpenChange={(o: boolean) => { if (!isLoading && !o) closeModal(); }}
+        onOpenChange={(o: boolean) => {
+          if (!isLoading && !o) closeModal();
+        }}
       >
         <DialogContent className={dialogBaseClass}>
           <ModalTitleBar filename="verify-identity.env" />
@@ -790,11 +1019,18 @@ export default function AccountPage() {
               <StyledInput
                 type="password"
                 value={oldPassword}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOldPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setOldPassword(e.target.value)
+                }
                 placeholder="••••••••••••"
                 autoComplete="current-password"
                 icon={<Icon.Lock />}
-                onKeyDown={(e: React.KeyboardEvent) => e.key === "Enter" && !isLoading && oldPassword && handleVerifyAndSave()}
+                onKeyDown={(e: React.KeyboardEvent) =>
+                  e.key === "Enter" &&
+                  !isLoading &&
+                  oldPassword &&
+                  handleVerifyAndSave()
+                }
               />
             </div>
             {error && <InlineAlert type="error" message={error} />}
@@ -811,7 +1047,6 @@ export default function AccountPage() {
           />
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

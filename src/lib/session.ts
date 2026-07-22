@@ -3,7 +3,11 @@ import { SignJWT, jwtVerify } from "jose";
 const SESSION_SECRET = process.env.SESSION_SECRET || "dotenvnest-secret";
 const encodedKey = new TextEncoder().encode(SESSION_SECRET);
 
-export async function signJWT(payload: { userId: string; email: string; [key: string]: unknown }) {
+export async function signJWT(payload: {
+  userId: string;
+  email: string;
+  [key: string]: unknown;
+}) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

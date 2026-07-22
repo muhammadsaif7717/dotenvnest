@@ -7,10 +7,11 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run prettier && next build",
     "start": "next start",
     "lint": "eslint",
-    "shadcn": "npx shadcn@latest add"
+    "shadcn": "npx shadcn@latest add",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@tabler/icons-react": "^3.44.0",
@@ -44,6 +45,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "prettier": "^3.9.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

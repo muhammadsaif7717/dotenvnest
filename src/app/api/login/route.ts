@@ -43,22 +43,30 @@ export async function POST(req: NextRequest) {
     if (user.isVerified === false) {
       const verificationCode = generateOTP();
       const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
-      
-      await db.collection("users").updateOne(
-        { email },
-        { $set: { verificationCode, verificationCodeExpires } }
-      );
-      
+
+      await db
+        .collection("users")
+        .updateOne(
+          { email },
+          { $set: { verificationCode, verificationCodeExpires } }
+        );
+
       await sendVerificationEmail(email, verificationCode);
 
       return NextResponse.json(
-        { message: "Please verify your email first. A new code has been sent.", requireVerification: true },
+        {
+          message: "Please verify your email first. A new code has been sent.",
+          requireVerification: true,
+        },
         { status: 403 }
       );
     }
 
     // Generate JWT token
-    const token = await signJWT({ userId: user._id.toString(), email: user.email });
+    const token = await signJWT({
+      userId: user._id.toString(),
+      email: user.email,
+    });
 
     // Set HTTP-only session cookie (7-day expiry)
     const cookieStore = await cookies();
@@ -70,10 +78,7 @@ export async function POST(req: NextRequest) {
       path: "/",
     });
 
-    return NextResponse.json(
-      { success: true },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error("[login] error:", err);
     return NextResponse.json(

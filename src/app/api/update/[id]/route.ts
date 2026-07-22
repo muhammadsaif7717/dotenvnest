@@ -28,8 +28,8 @@ export async function PUT(
 
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
-    const payload = await verifyJWT(token) as any;
-    
+    const payload = (await verifyJWT(token)) as any;
+
     if (!payload || !payload.userId || !payload.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -38,12 +38,17 @@ export async function PUT(
 
     const client = await clientPromise;
     const db = client.db(dbName);
-    
-    const user = await db.collection("users").findOne({ _id: new ObjectId(payload.userId as string) });
+
+    const user = await db
+      .collection("users")
+      .findOne({ _id: new ObjectId(payload.userId as string) });
     if (!user || !user.encrypted_user_secret) {
-      return NextResponse.json({ error: "PIN setup required." }, { status: 403 });
+      return NextResponse.json(
+        { error: "PIN setup required." },
+        { status: 403 }
+      );
     }
-    
+
     const rawPin = decryptWithGlobalSecret(user.encrypted_user_secret);
 
     const collection = db.collection("envs");
@@ -65,15 +70,23 @@ export async function PUT(
 
       if (!hasEditorAccess) {
         return NextResponse.json(
-          { error: "Unauthorized. You do not have edit permission for this environment." },
+          {
+            error:
+              "Unauthorized. You do not have edit permission for this environment.",
+          },
           { status: 403 }
         );
       }
 
       // Fetch owner user's PIN to encrypt the new content
-      const owner = await db.collection("users").findOne({ _id: new ObjectId(env.userId as string) });
+      const owner = await db
+        .collection("users")
+        .findOne({ _id: new ObjectId(env.userId as string) });
       if (!owner || !owner.encrypted_user_secret) {
-        return NextResponse.json({ error: "Owner credentials error." }, { status: 500 });
+        return NextResponse.json(
+          { error: "Owner credentials error." },
+          { status: 500 }
+        );
       }
       ownerPin = decryptWithGlobalSecret(owner.encrypted_user_secret);
     }

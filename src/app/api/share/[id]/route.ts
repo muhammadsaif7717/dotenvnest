@@ -45,7 +45,7 @@ export async function POST(
 
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
-    const payload = await verifyJWT(token) as any;
+    const payload = (await verifyJWT(token)) as any;
 
     if (!payload || !payload.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

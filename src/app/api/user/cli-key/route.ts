@@ -32,6 +32,9 @@ export async function GET() {
     return NextResponse.json({ apiKey: cliSecret }, { status: 200 });
   } catch (err) {
     console.error("[cli-key] error:", err);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

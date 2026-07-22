@@ -8,7 +8,14 @@ import { Button } from "@/components/ui/button";
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const Icon = {
   Sun: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -21,7 +28,14 @@ const Icon = {
     </svg>
   ),
   Moon: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
@@ -38,7 +52,9 @@ function CliAuthContent() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<"authenticating" | "error">("authenticating");
+  const [status, setStatus] = useState<"authenticating" | "error">(
+    "authenticating"
+  );
 
   useEffect(() => {
     const cliPort = searchParams.get("cli_port");
@@ -101,7 +117,10 @@ function CliAuthContent() {
             className="text-base sm:text-lg font-bold tracking-tight"
             style={{ fontFamily: "'Courier New', monospace" }}
           >
-            <span className="text-emerald-500 dark:text-emerald-400">.</span>env<span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
+            <span className="text-emerald-500 dark:text-emerald-400">.</span>env
+            <span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">
+              nest
+            </span>
           </span>
         </div>
         <Button
@@ -111,8 +130,12 @@ function CliAuthContent() {
           className="flex items-center gap-1.5 sm:gap-2 h-8 px-2.5 sm:px-3 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 dark:text-zinc-500 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700"
           title="Toggle theme"
         >
-          <span className="dark:hidden"><Icon.Moon /></span>
-          <span className="hidden dark:inline"><Icon.Sun /></span>
+          <span className="dark:hidden">
+            <Icon.Moon />
+          </span>
+          <span className="hidden dark:inline">
+            <Icon.Sun />
+          </span>
           <span className="hidden xs:inline dark:hidden">Dark</span>
           <span className="hidden xs:inline dark:inline">Light</span>
         </Button>
@@ -150,7 +173,13 @@ function CliAuthContent() {
 
 export default function CliAuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><Spinner /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Spinner />
+        </div>
+      }
+    >
       <CliAuthContent />
     </Suspense>
   );

@@ -1,12 +1,12 @@
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 
 export const generateOTP = () => {
   return crypto.randomInt(100000, 999999).toString();
 };
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -17,7 +17,7 @@ export const sendVerificationEmail = async (to: string, code: string) => {
   const mailOptions = {
     from: process.env.SMTP_USER,
     to,
-    subject: 'DotEnvNest - Verify Your Email',
+    subject: "DotEnvNest - Verify Your Email",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2>Verify Your Email</h2>
@@ -34,7 +34,7 @@ export const sendVerificationEmail = async (to: string, code: string) => {
   try {
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Failed to send verification email');
+    console.error("Error sending email:", error);
+    throw new Error("Failed to send verification email");
   }
 };

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Check if it's exactly 6 digits
     if (!/^\d{6}$/.test(pin)) {
       return NextResponse.json(
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
     const payload = await verifyJWT(token);
-    
+
     if (!payload || !payload.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -36,15 +36,20 @@ export async function POST(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db(dbName);
     const usersCollection = db.collection("users");
-    
+
     // Check if user exists
-    const user = await usersCollection.findOne({ _id: new ObjectId(payload.userId as string) });
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(payload.userId as string),
+    });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
+
     if (user.encrypted_user_secret) {
-      return NextResponse.json({ error: "PIN is already setup." }, { status: 400 });
+      return NextResponse.json(
+        { error: "PIN is already setup." },
+        { status: 400 }
+      );
     }
 
     // Encrypt the PIN with the global secret

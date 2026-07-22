@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db(dbName);
     const usersCollection = db.collection("users");
-    
+
     // Find the current user using cliToken
     const user = await usersCollection.findOne({ cliToken });
     if (!user) {
@@ -32,7 +32,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (!user.encrypted_user_secret) {
-      return NextResponse.json({ error: "PIN setup required. Please login via website." }, { status: 403 });
+      return NextResponse.json(
+        { error: "PIN setup required. Please login via website." },
+        { status: 403 }
+      );
     }
 
     const collection = db.collection("envs");
@@ -41,20 +44,34 @@ export async function POST(req: NextRequest) {
 
     const ownEnv = await collection.findOne({
       userId: user._id.toString(),
-      projectName: projectName
+      projectName: projectName,
     });
 
-    const sharedEnvCursor = await collection.find({
-      projectName: projectName,
-      "sharedWith.email": user.email
-    }).toArray();
+    const sharedEnvCursor = await collection
+      .find({
+        projectName: projectName,
+        "sharedWith.email": user.email,
+      })
+      .toArray();
 
     // If no specific owner provided, but there are multiple possibilities
     if (!ownerEmail && ownEnv && sharedEnvCursor.length > 0) {
-      return NextResponse.json({ error: "Multiple projects with this name found (Owned and Shared). Please specify --owner <email>." }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            "Multiple projects with this name found (Owned and Shared). Please specify --owner <email>.",
+        },
+        { status: 400 }
+      );
     }
     if (!ownerEmail && sharedEnvCursor.length > 1) {
-      return NextResponse.json({ error: "Multiple shared projects with this name found. Please specify --owner <email>." }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            "Multiple shared projects with this name found. Please specify --owner <email>.",
+        },
+        { status: 400 }
+      );
     }
 
     if (ownerEmail && ownerEmail !== user.email) {
@@ -69,20 +86,33 @@ export async function POST(req: NextRequest) {
     }
 
     // Let's rewrite the detection logic cleanly:
-    
+
     // Find owner user ID if ownerEmail is provided
     let specifiedOwnerId = null;
     if (ownerEmail && ownerEmail !== user.email) {
-      const specifiedOwner = await usersCollection.findOne({ email: ownerEmail });
+      const specifiedOwner = await usersCollection.findOne({
+        email: ownerEmail,
+      });
       if (!specifiedOwner) {
-        return NextResponse.json({ error: "Specified owner not found." }, { status: 404 });
+        return NextResponse.json(
+          { error: "Specified owner not found." },
+          { status: 404 }
+        );
       }
       specifiedOwnerId = specifiedOwner._id.toString();
     }
 
     if (specifiedOwnerId) {
-      targetEnv = await collection.findOne({ projectName, userId: specifiedOwnerId, "sharedWith.email": user.email });
-      if (!targetEnv) return NextResponse.json({ error: "Shared project not found." }, { status: 404 });
+      targetEnv = await collection.findOne({
+        projectName,
+        userId: specifiedOwnerId,
+        "sharedWith.email": user.email,
+      });
+      if (!targetEnv)
+        return NextResponse.json(
+          { error: "Shared project not found." },
+          { status: 404 }
+        );
     } else if (ownEnv) {
       targetEnv = ownEnv;
     } else if (sharedEnvCursor.length === 1) {
@@ -93,13 +123,23 @@ export async function POST(req: NextRequest) {
 
     if (targetEnv && targetEnv.userId !== user._id.toString()) {
       // It's a shared project
-      const share = targetEnv.sharedWith.find((s: any) => s.email === user.email);
+      const share = targetEnv.sharedWith.find(
+        (s: any) => s.email === user.email
+      );
       if (!share || share.role !== "editor") {
-        return NextResponse.json({ error: "You only have read access to this shared project." }, { status: 403 });
+        return NextResponse.json(
+          { error: "You only have read access to this shared project." },
+          { status: 403 }
+        );
       }
-      const owner = await usersCollection.findOne({ _id: new ObjectId(targetEnv.userId as string) });
+      const owner = await usersCollection.findOne({
+        _id: new ObjectId(targetEnv.userId as string),
+      });
       if (!owner || !owner.encrypted_user_secret) {
-        return NextResponse.json({ error: "Owner PIN not found." }, { status: 500 });
+        return NextResponse.json(
+          { error: "Owner PIN not found." },
+          { status: 500 }
+        );
       }
       targetPin = decryptWithGlobalSecret(owner.encrypted_user_secret);
     }
@@ -110,18 +150,27 @@ export async function POST(req: NextRequest) {
       // Update existing
       await collection.updateOne(
         { _id: targetEnv._id },
-        { 
-          $set: { 
+        {
+          $set: {
             envContent: encryptedContent,
-            lastModified: new Date().toISOString()
-          } 
+            lastModified: new Date().toISOString(),
+          },
         }
       );
-      return NextResponse.json({ message: "Environment updated successfully." }, { status: 200 });
+      return NextResponse.json(
+        { message: "Environment updated successfully." },
+        { status: 200 }
+      );
     } else {
       // Create new
       if (ownerEmail && ownerEmail !== user.email) {
-         return NextResponse.json({ error: "Cannot create a new shared project. Ask the owner to create and share it." }, { status: 403 });
+        return NextResponse.json(
+          {
+            error:
+              "Cannot create a new shared project. Ask the owner to create and share it.",
+          },
+          { status: 403 }
+        );
       }
       await collection.insertOne({
         userId: user._id.toString(),
@@ -132,11 +181,16 @@ export async function POST(req: NextRequest) {
         createdAt: new Date().toISOString(),
         lastModified: new Date().toISOString(),
       });
-      return NextResponse.json({ message: "Environment created successfully." }, { status: 201 });
+      return NextResponse.json(
+        { message: "Environment created successfully." },
+        { status: 201 }
+      );
     }
-
   } catch (error) {
     console.error("CLI push error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -22,9 +22,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     if (password.length < 6) {
-       return NextResponse.json(
+      return NextResponse.json(
         { message: "Password must be at least 6 characters long." },
         { status: 400 }
       );
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       isVerified: false,
       verificationCode,
-      verificationCodeExpires: new Date(Date.now() + 10 * 60 * 1000)
+      verificationCodeExpires: new Date(Date.now() + 10 * 60 * 1000),
     });
 
     await sendVerificationEmail(email, verificationCode);

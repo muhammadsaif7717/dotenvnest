@@ -19,7 +19,11 @@ api.interceptors.request.use((config) => {
 
 export const getApiError = (error: any): string => {
   if (error.response) {
-    return error.response.data?.error || error.response.data?.message || `Server Error: ${error.response.status}`;
+    return (
+      error.response.data?.error ||
+      error.response.data?.message ||
+      `Server Error: ${error.response.status}`
+    );
   } else if (error.request) {
     return "Network error. Please check your internet connection.";
   }

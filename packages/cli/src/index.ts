@@ -22,14 +22,25 @@ const program = new Command();
 
 program
   .name("dotenvnest")
-  .description(chalk.hex('#10b981')("Dotenvnest CLI - Securely manage your .env files across projects"))
+  .description(
+    chalk.hex("#10b981")(
+      "Dotenvnest CLI - Securely manage your .env files across projects"
+    )
+  )
   .version(pkg.version);
 
 // Override help to point to docs
 program.on("--help", () => {
   console.log("");
-  console.log(chalk.bold("For more detailed documentation, visit: ") + chalk.cyan.underline("https://dotenvnest.vercel.app/docs"));
-  console.log(chalk.gray("Or run ") + chalk.cyan("dotenvnest docs") + chalk.gray(" to open the docs in your browser."));
+  console.log(
+    chalk.bold("For more detailed documentation, visit: ") +
+      chalk.cyan.underline("https://dotenvnest.vercel.app/docs")
+  );
+  console.log(
+    chalk.gray("Or run ") +
+      chalk.cyan("dotenvnest docs") +
+      chalk.gray(" to open the docs in your browser.")
+  );
 });
 
 // Setup commands

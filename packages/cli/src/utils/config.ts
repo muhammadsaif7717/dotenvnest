@@ -10,7 +10,9 @@ interface Config {
 
 export function saveConfig(config: Config) {
   try {
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), { mode: 0o600 });
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), {
+      mode: 0o600,
+    });
   } catch (error) {
     console.error("Failed to save config:", error);
   }

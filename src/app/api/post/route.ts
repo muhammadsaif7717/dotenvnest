@@ -16,22 +16,27 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
     const payload = await verifyJWT(token);
-    
+
     if (!payload || !payload.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const client = await clientPromise;
     const db = client.db(dbName);
-    
+
     // Fetch the user to get their encrypted secret
-    const user = await db.collection("users").findOne({ _id: new ObjectId(payload.userId as string) });
+    const user = await db
+      .collection("users")
+      .findOne({ _id: new ObjectId(payload.userId as string) });
     if (!user || !user.encrypted_user_secret) {
-      return NextResponse.json({ error: "PIN setup required." }, { status: 403 });
+      return NextResponse.json(
+        { error: "PIN setup required." },
+        { status: 403 }
+      );
     }
 
     // Decrypt the PIN using the global secret

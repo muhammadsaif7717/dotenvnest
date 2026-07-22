@@ -19,7 +19,7 @@ if (redisUrl && redisToken) {
     ephemeralCache: new Map(),
     analytics: true,
   });
-  
+
   cliRatelimit = new Ratelimit({
     redis: new Redis({
       url: redisUrl,
@@ -40,29 +40,37 @@ export async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.includes(pathname);
   const isAuthRoute = authRoutes.includes(pathname);
   const isApiRoute = pathname.startsWith("/api/");
-  const isApiAuthRoute = pathname.startsWith("/api/login") || pathname.startsWith("/api/logout") || pathname.startsWith("/api/signup") || pathname.startsWith("/api/verify") || pathname.startsWith("/api/resend-code");
+  const isApiAuthRoute =
+    pathname.startsWith("/api/login") ||
+    pathname.startsWith("/api/logout") ||
+    pathname.startsWith("/api/signup") ||
+    pathname.startsWith("/api/verify") ||
+    pathname.startsWith("/api/resend-code");
   const isCliRoute = pathname.startsWith("/api/cli");
 
   if (ratelimit && isApiRoute) {
-    const isAuthRateLimited = pathname.startsWith("/api/login") || 
-                              pathname.startsWith("/api/signup") || 
-                              pathname.startsWith("/api/verify") || 
-                              pathname.startsWith("/api/resend-code");
-                              
+    const isAuthRateLimited =
+      pathname.startsWith("/api/login") ||
+      pathname.startsWith("/api/signup") ||
+      pathname.startsWith("/api/verify") ||
+      pathname.startsWith("/api/resend-code");
+
     if (isAuthRateLimited) {
       const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
-      const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`);
-      
+      const { success, limit, reset, remaining } = await ratelimit.limit(
+        `ratelimit_${ip}`
+      );
+
       if (!success) {
         return NextResponse.json(
           { message: "Too many requests. Please try again later." },
-          { 
+          {
             status: 429,
             headers: {
               "X-RateLimit-Limit": limit.toString(),
               "X-RateLimit-Remaining": remaining.toString(),
               "X-RateLimit-Reset": reset.toString(),
-            }
+            },
           }
         );
       }
@@ -74,18 +82,20 @@ export async function proxy(request: NextRequest) {
     // We can also rate limit based on CLI Token if we want, but IP is easier for now
     const authHeader = request.headers.get("authorization");
     const cliToken = authHeader?.split(" ")[1] || ip;
-    const { success, limit, reset, remaining } = await cliRatelimit.limit(`cli_ratelimit_${cliToken}`);
-    
+    const { success, limit, reset, remaining } = await cliRatelimit.limit(
+      `cli_ratelimit_${cliToken}`
+    );
+
     if (!success) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        { 
+        {
           status: 429,
           headers: {
             "X-RateLimit-Limit": limit.toString(),
             "X-RateLimit-Remaining": remaining.toString(),
             "X-RateLimit-Reset": reset.toString(),
-          }
+          },
         }
       );
     }
@@ -93,7 +103,7 @@ export async function proxy(request: NextRequest) {
 
   // Get token from cookie
   const token = request.cookies.get("dotenvnest_session")?.value;
-  
+
   // Verify token
   const payload = await verifyJWT(token);
   const isAuthenticated = !!payload;

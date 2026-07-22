@@ -24,13 +24,15 @@ function parseEnv(content: string): Record<string, string> {
 export function computeDiff(oldContent: string, newContent: string): EnvDiff[] {
   const oldEnv = parseEnv(oldContent);
   const newEnv = parseEnv(newContent);
-  
-  const allKeys = Array.from(new Set([...Object.keys(oldEnv), ...Object.keys(newEnv)])).sort();
-  
-  return allKeys.map(key => {
+
+  const allKeys = Array.from(
+    new Set([...Object.keys(oldEnv), ...Object.keys(newEnv)])
+  ).sort();
+
+  return allKeys.map((key) => {
     const oldValue = oldEnv[key];
     const newValue = newEnv[key];
-    
+
     let status: EnvDiff["status"];
     if (oldValue === undefined) {
       status = "added";
@@ -41,7 +43,7 @@ export function computeDiff(oldContent: string, newContent: string): EnvDiff[] {
     } else {
       status = "unchanged";
     }
-    
+
     return { key, oldValue, newValue, status };
   });
 }

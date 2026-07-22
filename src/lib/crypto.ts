@@ -6,7 +6,9 @@ const ALGORITHM = "aes-256-cbc";
 function getGlobalSecretKey() {
   const secret = process.env.ENCRYPTION_SECRET;
   if (!secret || secret.length !== 32) {
-    throw new Error("ENCRYPTION_SECRET must be defined in environment variables and exactly 32 characters long.");
+    throw new Error(
+      "ENCRYPTION_SECRET must be defined in environment variables and exactly 32 characters long."
+    );
   }
   return Buffer.from(secret, "utf8");
 }
@@ -17,7 +19,7 @@ function getUserSecretKey(pin: string) {
     throw new Error("A valid PIN is required for encryption.");
   }
   // Use SHA-256 to hash the PIN to exactly 32 bytes for aes-256-cbc
-  return crypto.createHash('sha256').update(pin).digest();
+  return crypto.createHash("sha256").update(pin).digest();
 }
 
 /**
@@ -60,10 +62,10 @@ export function decryptWithUserPin(hash: string, pin: string): string {
 function _encrypt(text: string, key: Buffer): string {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-  
+
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
-  
+
   return iv.toString("hex") + ":" + encrypted;
 }
 
@@ -72,24 +74,26 @@ function _decrypt(hash: string, key: Buffer): string {
   if (!hash || !hash.includes(":")) {
     return hash;
   }
-  
+
   try {
     const splitIndex = hash.indexOf(":");
     if (splitIndex !== 32) {
       return hash;
     }
-    
+
     const ivHex = hash.substring(0, 32);
     const encryptedHex = hash.substring(33);
     const iv = Buffer.from(ivHex, "hex");
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-    
+
     let decrypted = decipher.update(encryptedHex, "hex", "utf8");
     decrypted += decipher.final("utf8");
-    
+
     return decrypted;
   } catch (error) {
     console.error("Decryption failed:", error);
-    throw new Error("Decryption failed. The provided key might be incorrect or the data is corrupted.");
+    throw new Error(
+      "Decryption failed. The provided key might be incorrect or the data is corrupted."
+    );
   }
 }

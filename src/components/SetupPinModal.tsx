@@ -38,7 +38,10 @@ function PinInput({
 
   const digits = value.padEnd(length, "").split("").slice(0, length);
 
-  const handleKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    i: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace") {
       e.preventDefault();
       if (digits[i]) {
@@ -69,7 +72,10 @@ function PinInput({
       return;
     }
 
-    const next = (value.slice(0, i) + raw + value.slice(i + 1)).slice(0, length);
+    const next = (value.slice(0, i) + raw + value.slice(i + 1)).slice(
+      0,
+      length
+    );
     onChange(next);
     if (i < length - 1) inputsRef.current[i + 1]?.focus();
   };
@@ -84,7 +90,10 @@ function PinInput({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, length);
     onChange(pasted);
     const nextIndex = Math.min(pasted.length, length - 1);
     inputsRef.current[nextIndex]?.focus();
@@ -94,11 +103,14 @@ function PinInput({
     <div className="flex gap-2 sm:gap-2.5 justify-center">
       {Array.from({ length }, (_, i) => {
         const isFilled = !!digits[i];
-        const isActive = value.length === i || (value.length === length && i === length - 1);
+        const isActive =
+          value.length === i || (value.length === length && i === length - 1);
         return (
           <input
             key={i}
-            ref={(el) => { inputsRef.current[i] = el; }}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
             type="password"
             inputMode="numeric"
             maxLength={2}
@@ -141,7 +153,10 @@ export function SetupPinModal({ open }: SetupPinModalProps) {
   // Animated ellipsis while loading
   useEffect(() => {
     if (!loading) return;
-    const id = setInterval(() => setDots((d) => (d.length < 3 ? d + "." : "")), 400);
+    const id = setInterval(
+      () => setDots((d) => (d.length < 3 ? d + "." : "")),
+      400
+    );
     return () => {
       clearInterval(id);
       setDots("");
@@ -165,7 +180,9 @@ export function SetupPinModal({ open }: SetupPinModalProps) {
       if (!res.ok) throw new Error(data.error || "Failed to setup PIN");
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
       setLoading(false);
     }
   };
@@ -209,7 +226,8 @@ export function SetupPinModal({ open }: SetupPinModalProps) {
             <span className="text-emerald-500 dark:text-emerald-400 font-semibold">
               6-digit PIN
             </span>{" "}
-            to encrypt your environment variables. You will only need to do this once.
+            to encrypt your environment variables. You will only need to do this
+            once.
           </p>
         </DialogHeader>
 
@@ -250,7 +268,9 @@ export function SetupPinModal({ open }: SetupPinModalProps) {
           {error && (
             <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
               <AlertTriangle className="w-3.5 h-3.5 text-red-500 dark:text-red-400 shrink-0" />
-              <p className="text-[11px] text-red-500 dark:text-red-400 leading-4">{error}</p>
+              <p className="text-[11px] text-red-500 dark:text-red-400 leading-4">
+                {error}
+              </p>
             </div>
           )}
 

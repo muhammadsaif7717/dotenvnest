@@ -9,11 +9,13 @@ export function docsCommand(program: Command) {
     .action(async () => {
       const docsUrl = "https://dotenvnest.vercel.app/docs";
       console.log(chalk.gray(`Opening documentation at ${docsUrl}...`));
-      
+
       try {
         await open(docsUrl);
       } catch (err) {
-        console.log(chalk.red(`Failed to open browser. Please visit manually: ${docsUrl}`));
+        console.log(
+          chalk.red(`Failed to open browser. Please visit manually: ${docsUrl}`)
+        );
       }
     });
 }

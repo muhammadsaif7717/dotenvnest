@@ -12,25 +12,34 @@ export function shareCommand(program: Command) {
     .action(async (projectName, email, options) => {
       const config = readConfig();
       if (!config.token) {
-        console.log(chalk.red("You are not logged in. Please run ") + chalk.cyan("dotenvnest login") + chalk.red(" first."));
+        console.log(
+          chalk.red("You are not logged in. Please run ") +
+            chalk.cyan("dotenvnest login") +
+            chalk.red(" first.")
+        );
         return;
       }
 
       const access = options.access === "edit" ? "edit" : "read";
       const finalProjectName = projectName.trim();
 
-      const emails = email.split(",").map((e: string) => e.trim()).filter((e: string) => e.length > 0);
+      const emails = email
+        .split(",")
+        .map((e: string) => e.trim())
+        .filter((e: string) => e.length > 0);
 
       for (const e of emails) {
-        const spinner = ora(`Sharing project ${chalk.bold(finalProjectName)} with ${chalk.cyan(e)}...`).start();
+        const spinner = ora(
+          `Sharing project ${chalk.bold(finalProjectName)} with ${chalk.cyan(e)}...`
+        ).start();
 
         try {
           const res = await api.post("/share", {
             projectName: finalProjectName,
             email: e,
-            access
+            access,
           });
-          
+
           spinner.succeed(chalk.green(res.data.message));
         } catch (error: any) {
           spinner.fail(chalk.red(`Failed to share project with ${e}.`));

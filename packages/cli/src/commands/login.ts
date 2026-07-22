@@ -30,7 +30,7 @@ export function loginCommand(program: Command) {
       console.log(chalk.bold("\n🚀 Authenticating with Dotenvnest\n"));
 
       const server = http.createServer();
-      
+
       server.on("request", (req, res) => {
         if (!req.url) return;
         const reqUrl = url.parse(req.url, true);
@@ -50,16 +50,16 @@ export function loginCommand(program: Command) {
                 </body>
               </html>
             `);
-            
+
             console.log(
-              boxen(chalk.hex('#10b981').bold("Successfully logged in!"), {
+              boxen(chalk.hex("#10b981").bold("Successfully logged in!"), {
                 padding: 1,
                 margin: 1,
                 borderStyle: "round",
                 borderColor: "green",
               })
             );
-            
+
             server.close();
             process.exit(0);
           } else {
@@ -72,25 +72,30 @@ export function loginCommand(program: Command) {
       server.listen(0, async () => {
         const address = server.address();
         const port = typeof address === "string" ? 0 : address?.port;
-        
+
         const loginUrl = `https://dotenvnest.vercel.app/cli-auth?cli_port=${port}`;
-        
+
         console.log(chalk.gray(`Opening browser to: ${loginUrl}`));
-        
+
         const spinner = ora("Waiting for authentication...").start();
-        
+
         try {
           await open(loginUrl);
         } catch (err) {
-          spinner.fail(`Failed to open browser. Please open the link manually: ${chalk.cyan(loginUrl)}`);
+          spinner.fail(
+            `Failed to open browser. Please open the link manually: ${chalk.cyan(loginUrl)}`
+          );
         }
 
         // Timeout after 5 minutes
-        setTimeout(() => {
-          spinner.fail("Authentication timed out.");
-          server.close();
-          process.exit(1);
-        }, 5 * 60 * 1000);
+        setTimeout(
+          () => {
+            spinner.fail("Authentication timed out.");
+            server.close();
+            process.exit(1);
+          },
+          5 * 60 * 1000
+        );
       });
     });
 }

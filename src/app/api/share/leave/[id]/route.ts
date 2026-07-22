@@ -17,7 +17,7 @@ export async function POST(
 
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
-    const payload = await verifyJWT(token) as any;
+    const payload = (await verifyJWT(token)) as any;
 
     if (!payload || !payload.userId || !payload.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -29,10 +29,9 @@ export async function POST(
     const db = client.db(dbName);
     const collection = db.collection("envs");
 
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id) },
-      { $pull: { sharedWith: { email: userEmail } } } as any
-    );
+    const result = await collection.updateOne({ _id: new ObjectId(id) }, {
+      $pull: { sharedWith: { email: userEmail } },
+    } as any);
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Env not found." }, { status: 404 });

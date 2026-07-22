@@ -19,7 +19,10 @@ export async function POST() {
 
     const MONGODB_URI = process.env.MONGODB_URI;
     if (!MONGODB_URI) {
-      return NextResponse.json({ error: "MONGODB_URI is not set." }, { status: 500 });
+      return NextResponse.json(
+        { error: "MONGODB_URI is not set." },
+        { status: 500 }
+      );
     }
 
     const client = new MongoClient(MONGODB_URI);
@@ -27,7 +30,9 @@ export async function POST() {
     const db = client.db("dotenvnest");
     const usersCollection = db.collection("users");
 
-    const user = await usersCollection.findOne({ _id: new ObjectId(payload.userId as string) });
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(payload.userId as string),
+    });
     if (!user) {
       await client.close();
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,13 +40,19 @@ export async function POST() {
 
     if (!user.encrypted_user_secret) {
       await client.close();
-      return NextResponse.json({ error: "Please set up your encryption PIN first." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Please set up your encryption PIN first." },
+        { status: 403 }
+      );
     }
 
     const cliToken = user.cliToken || generateSecureToken();
 
     if (!user.cliToken) {
-      await usersCollection.updateOne({ _id: user._id }, { $set: { cliToken } });
+      await usersCollection.updateOne(
+        { _id: user._id },
+        { $set: { cliToken } }
+      );
     }
 
     await client.close();
@@ -49,6 +60,9 @@ export async function POST() {
     return NextResponse.json({ token: cliToken }, { status: 200 });
   } catch (error) {
     console.error("CLI auth token error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

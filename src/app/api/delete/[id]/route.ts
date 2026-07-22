@@ -18,7 +18,7 @@ export async function DELETE(
     const cookieStore = await cookies();
     const token = cookieStore.get("dotenvnest_session")?.value;
     const payload = await verifyJWT(token);
-    
+
     if (!payload || !payload.userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -26,9 +26,9 @@ export async function DELETE(
     const client = await clientPromise;
     const collection = client.db(dbName).collection("envs");
 
-    const result = await collection.deleteOne({ 
+    const result = await collection.deleteOne({
       _id: new ObjectId(id),
-      userId: payload.userId as string
+      userId: payload.userId as string,
     });
 
     if (result.deletedCount === 0) {

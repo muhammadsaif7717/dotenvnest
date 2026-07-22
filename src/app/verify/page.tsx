@@ -5,17 +5,20 @@ import { useTheme } from "next-themes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const Icon = {
   Sun: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -28,18 +31,40 @@ const Icon = {
     </svg>
   ),
   Moon: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
   ArrowRight: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+    >
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
     </svg>
   ),
   Warn: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="shrink-0"
+    >
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
       <line x1="12" y1="9" x2="12" y2="13" />
       <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -69,7 +94,10 @@ function OtpInput({
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const digits = value.padEnd(LENGTH, "").split("").slice(0, LENGTH);
 
-  const handleKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    i: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace") {
       e.preventDefault();
       if (digits[i]) {
@@ -97,7 +125,10 @@ function OtpInput({
       return;
     }
 
-    const next = (value.slice(0, i) + raw + value.slice(i + 1)).slice(0, LENGTH);
+    const next = (value.slice(0, i) + raw + value.slice(i + 1)).slice(
+      0,
+      LENGTH
+    );
     onChange(next);
     if (i < LENGTH - 1) inputsRef.current[i + 1]?.focus();
   };
@@ -111,7 +142,10 @@ function OtpInput({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, LENGTH);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, LENGTH);
     onChange(pasted);
     inputsRef.current[Math.min(pasted.length, LENGTH - 1)]?.focus();
   };
@@ -127,7 +161,9 @@ function OtpInput({
         return (
           <input
             key={i}
-            ref={(el) => { inputsRef.current[i] = el; }}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -258,7 +294,10 @@ function VerifyContent() {
             className="text-base sm:text-lg font-bold tracking-tight"
             style={{ fontFamily: "'Courier New', monospace" }}
           >
-            <span className="text-emerald-500 dark:text-emerald-400">.</span>env<span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
+            <span className="text-emerald-500 dark:text-emerald-400">.</span>env
+            <span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">
+              nest
+            </span>
           </span>
         </div>
 
@@ -270,8 +309,12 @@ function VerifyContent() {
           className="flex items-center gap-1.5 sm:gap-2 h-8 px-2.5 sm:px-3 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 dark:text-zinc-500 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700"
           title="Toggle theme"
         >
-          <span className="dark:hidden"><Icon.Moon /></span>
-          <span className="hidden dark:inline"><Icon.Sun /></span>
+          <span className="dark:hidden">
+            <Icon.Moon />
+          </span>
+          <span className="hidden dark:inline">
+            <Icon.Sun />
+          </span>
           <span className="hidden xs:inline dark:hidden">Dark</span>
           <span className="hidden xs:inline dark:inline">Light</span>
         </Button>
@@ -292,7 +335,11 @@ function VerifyContent() {
               Verify Email
             </h1>
             <p className="text-zinc-400 dark:text-zinc-600 text-xs sm:text-sm mt-1 sm:mt-1.5 tracking-wide">
-              We sent a 6-digit code to <span className="text-emerald-500 dark:text-emerald-400">{email}</span>.
+              We sent a 6-digit code to{" "}
+              <span className="text-emerald-500 dark:text-emerald-400">
+                {email}
+              </span>
+              .
             </p>
           </div>
 
@@ -311,7 +358,6 @@ function VerifyContent() {
             {/* Form body */}
             <CardContent className="p-4 sm:p-6">
               <form onSubmit={handleVerify} className="space-y-4 sm:space-y-5">
-
                 {/* OTP Inputs */}
                 <div className="space-y-1 sm:space-y-1.5">
                   <p className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold text-center mb-3">
@@ -319,7 +365,10 @@ function VerifyContent() {
                   </p>
                   <OtpInput
                     value={code}
-                    onChange={(v) => { setCode(v); setError(null); }}
+                    onChange={(v) => {
+                      setCode(v);
+                      setError(null);
+                    }}
                     disabled={isLoading}
                   />
                 </div>
@@ -363,17 +412,20 @@ function VerifyContent() {
                       py-2.5 sm:py-3 h-auto rounded-lg
                       text-xs sm:text-sm font-bold tracking-widest uppercase
                       transition-all duration-200
-                      ${!canSubmit
-                        ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-300 dark:text-zinc-700 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                        : isLoading
-                        ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
-                        : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
+                      ${
+                        !canSubmit
+                          ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-300 dark:text-zinc-700 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                          : isLoading
+                            ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
+                            : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
                       }
                     `}
                   >
                     {isLoading ? (
                       <>
-                        <Spinner color={theme === "dark" ? "#34d399" : "#10b981"} />
+                        <Spinner
+                          color={theme === "dark" ? "#34d399" : "#10b981"}
+                        />
                         <span>Verifying...</span>
                       </>
                     ) : (
@@ -395,7 +447,13 @@ function VerifyContent() {
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Spinner /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Spinner />
+        </div>
+      }
+    >
       <VerifyContent />
     </Suspense>
   );

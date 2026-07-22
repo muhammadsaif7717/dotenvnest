@@ -3,7 +3,16 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { postEnv, getAllEnv, deleteAEnv, updateAEnv, shareEnv, leaveSharedEnv, EnvProject, SharedUser } from "@/lib/api";
+import {
+  postEnv,
+  getAllEnv,
+  deleteAEnv,
+  updateAEnv,
+  shareEnv,
+  leaveSharedEnv,
+  EnvProject,
+  SharedUser,
+} from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // shadcn/ui imports
@@ -107,8 +116,9 @@ function EnvEditor({
 }) {
   const keyCount = value
     .split("\n")
-    .filter((l) => l.trim() && !l.trim().startsWith("#") && l.includes("="))
-    .length;
+    .filter(
+      (l) => l.trim() && !l.trim().startsWith("#") && l.includes("=")
+    ).length;
 
   const lineCount = (value || "\n").split("\n").length;
 
@@ -150,7 +160,9 @@ function EnvEditor({
           value={value}
           onChange={(e) => !readOnly && onChange(e.target.value)}
           readOnly={readOnly}
-          placeholder={"DATABASE_URL=mongodb://...\nAPI_KEY=your_key\nSECRET=your_secret"}
+          placeholder={
+            "DATABASE_URL=mongodb://...\nAPI_KEY=your_key\nSECRET=your_secret"
+          }
           rows={rows}
           spellCheck={false}
           className="flex-1 bg-transparent pl-3 sm:pl-4 pr-3 sm:pr-4 pt-3 pb-3 text-xs sm:text-sm text-emerald-700 dark:text-emerald-300 placeholder-zinc-300 dark:placeholder-zinc-700 focus:outline-none resize-none leading-6 w-full min-w-0"
@@ -170,7 +182,12 @@ function UpdateModal({
 }: {
   env: EnvProject | null;
   open: boolean;
-  onSave: (id: string, name: string, content: string, tags: string[]) => Promise<void>;
+  onSave: (
+    id: string,
+    name: string,
+    content: string,
+    tags: string[]
+  ) => Promise<void>;
   onClose: () => void;
 }) {
   const [name, setName] = useState(env?.projectName ?? "");
@@ -203,7 +220,10 @@ function UpdateModal({
     setIsSaving(true);
     setError(false);
     try {
-      const tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
+      const tags = tagsString
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
       await onSave(env._id, name.trim(), content.trim(), tags);
       onClose();
     } catch {
@@ -214,10 +234,15 @@ function UpdateModal({
   };
 
   const unchanged =
-    name.trim() === env?.projectName && content.trim() === env?.envContent && tagsString.trim() === (env?.tags?.join(", ") ?? "");
+    name.trim() === env?.projectName &&
+    content.trim() === env?.envContent &&
+    tagsString.trim() === (env?.tags?.join(", ") ?? "");
 
-  const diffs = useMemo(() => computeDiff(env?.envContent ?? "", content), [env?.envContent, content]);
-  const hasChanges = diffs.some(d => d.status !== "unchanged");
+  const diffs = useMemo(
+    () => computeDiff(env?.envContent ?? "", content),
+    [env?.envContent, content]
+  );
+  const hasChanges = diffs.some((d) => d.status !== "unchanged");
 
   return (
     <Dialog open={open} onOpenChange={(o) => !isSaving && !o && onClose()}>
@@ -225,7 +250,9 @@ function UpdateModal({
         <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
-              <span className="text-emerald-500 dark:text-emerald-400 text-[9px] font-bold">.ev</span>
+              <span className="text-emerald-500 dark:text-emerald-400 text-[9px] font-bold">
+                .ev
+              </span>
             </div>
             <DialogTitle className="text-sm font-bold tracking-wide">
               {isReadOnly ? "View Env (Read-Only)" : "Update Env"}
@@ -279,11 +306,21 @@ function UpdateModal({
                       <Upload className="w-3 h-3" />
                       Upload .env
                     </Button>
-                    <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
                   </>
                 )}
               </div>
-              <EnvEditor value={content} onChange={setContent} rows={8} readOnly={isReadOnly} />
+              <EnvEditor
+                value={content}
+                onChange={setContent}
+                rows={8}
+                readOnly={isReadOnly}
+              />
             </div>
 
             {!isReadOnly && hasChanges && (
@@ -292,13 +329,30 @@ function UpdateModal({
                   Changes Preview
                 </Label>
                 <div className="bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-md p-2.5 text-xs font-mono space-y-1 max-h-32 overflow-y-auto">
-                  {diffs.filter(d => d.status !== "unchanged").map(d => (
-                    <div key={d.key} className="flex gap-2 items-center">
-                      {d.status === "added" && <span className="text-emerald-500 font-semibold">+ {d.key}</span>}
-                      {d.status === "removed" && <span className="text-red-500 font-semibold">- {d.key}</span>}
-                      {d.status === "changed" && <span className="text-amber-500 font-semibold">~ {d.key} <span className="text-zinc-400 text-[10px] font-normal">(modified)</span></span>}
-                    </div>
-                  ))}
+                  {diffs
+                    .filter((d) => d.status !== "unchanged")
+                    .map((d) => (
+                      <div key={d.key} className="flex gap-2 items-center">
+                        {d.status === "added" && (
+                          <span className="text-emerald-500 font-semibold">
+                            + {d.key}
+                          </span>
+                        )}
+                        {d.status === "removed" && (
+                          <span className="text-red-500 font-semibold">
+                            - {d.key}
+                          </span>
+                        )}
+                        {d.status === "changed" && (
+                          <span className="text-amber-500 font-semibold">
+                            ~ {d.key}{" "}
+                            <span className="text-zinc-400 text-[10px] font-normal">
+                              (modified)
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
@@ -322,7 +376,13 @@ function UpdateModal({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={isSaving || unchanged || !name.trim() || !content.trim() || isReadOnly}
+            disabled={
+              isSaving ||
+              unchanged ||
+              !name.trim() ||
+              !content.trim() ||
+              isReadOnly
+            }
             className={cn(
               "flex-1 text-xs sm:text-sm font-bold tracking-widest uppercase gap-2 h-auto py-2.5 sm:py-3",
               "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white",
@@ -330,11 +390,17 @@ function UpdateModal({
             )}
           >
             {isSaving ? (
-              <><Spinner className="border-white/40" /><span>Saving…</span></>
+              <>
+                <Spinner className="border-white/40" />
+                <span>Saving…</span>
+              </>
             ) : isReadOnly ? (
               <span>Read-Only Mode</span>
             ) : (
-              <><Save className="w-3.5 h-3.5" /><span>Save Changes</span></>
+              <>
+                <Save className="w-3.5 h-3.5" />
+                <span>Save Changes</span>
+              </>
             )}
           </Button>
         </DialogFooter>
@@ -354,7 +420,9 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
   const [emailInput, setEmailInput] = useState("");
   const [emails, setEmails] = useState<string[]>([]);
   const [role, setRole] = useState<"viewer" | "editor">("viewer");
-  const [sharedList, setSharedList] = useState<SharedUser[]>(env?.sharedWith ?? []);
+  const [sharedList, setSharedList] = useState<SharedUser[]>(
+    env?.sharedWith ?? []
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -382,7 +450,10 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
       return;
     }
 
-    if (emails.includes(trimmed) || sharedList.some((s) => s.email === trimmed)) {
+    if (
+      emails.includes(trimmed) ||
+      sharedList.some((s) => s.email === trimmed)
+    ) {
       setError("Email already added.");
       return;
     }
@@ -423,13 +494,18 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
       queryClient.invalidateQueries({ queryKey: ["envs"] });
       setTimeout(() => setSuccess(false), 2000);
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to update sharing permissions.");
+      setError(
+        err?.response?.data?.error || "Failed to update sharing permissions."
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleRoleChange = async (email: string, newRole: "viewer" | "editor") => {
+  const handleRoleChange = async (
+    email: string,
+    newRole: "viewer" | "editor"
+  ) => {
     if (!env) return;
     const updatedList = sharedList.map((item) =>
       item.email === email ? { ...item, role: newRole } : item
@@ -497,7 +573,9 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
                   onChange={(e) => setEmailInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onBlur={handleAddEmail}
-                  placeholder={emails.length === 0 ? "developer@domain.com" : ""}
+                  placeholder={
+                    emails.length === 0 ? "developer@domain.com" : ""
+                  }
                   className="flex-1 bg-transparent border-0 outline-none text-xs sm:text-sm font-mono text-zinc-800 dark:text-zinc-100 min-w-[80px]"
                 />
               </div>
@@ -516,7 +594,9 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
             </p>
           </div>
 
-          {error && <p className="text-red-500 dark:text-red-400 text-xs">{error}</p>}
+          {error && (
+            <p className="text-red-500 dark:text-red-400 text-xs">{error}</p>
+          )}
           {success && (
             <p className="text-emerald-500 dark:text-emerald-400 text-xs flex items-center gap-1.5 animate-pulse">
               <Check className="w-3.5 h-3.5" />
@@ -529,7 +609,11 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
             disabled={emails.length === 0 || isSaving}
             className="w-full text-xs font-bold tracking-widest uppercase gap-2 bg-emerald-500 hover:bg-emerald-600 text-white h-9"
           >
-            {isSaving ? <Spinner className="border-white/40" /> : <Save className="w-3.5 h-3.5" />}
+            {isSaving ? (
+              <Spinner className="border-white/40" />
+            ) : (
+              <Save className="w-3.5 h-3.5" />
+            )}
             Grant Access
           </Button>
 
@@ -558,7 +642,10 @@ function ShareModal({ env, open, onClose }: ShareModalProps) {
                       <select
                         value={item.role}
                         onChange={(e) =>
-                          handleRoleChange(item.email, e.target.value as "viewer" | "editor")
+                          handleRoleChange(
+                            item.email,
+                            e.target.value as "viewer" | "editor"
+                          )
                         }
                         className="font-mono text-[10px] sm:text-xs bg-transparent border-0 outline-none text-zinc-500 dark:text-zinc-400 cursor-pointer"
                       >
@@ -614,7 +701,10 @@ function EnvItem({
   const isDeleting = isDeletingId === env._id;
 
   const keyCount = env.envContent
-    ? env.envContent.split("\n").filter((l) => l.trim() && !l.trim().startsWith("#") && l.includes("=")).length
+    ? env.envContent
+        .split("\n")
+        .filter((l) => l.trim() && !l.trim().startsWith("#") && l.includes("="))
+        .length
     : 0;
 
   const formatDate = (iso: string) =>
@@ -632,7 +722,9 @@ function EnvItem({
           {idx + 1}
         </span>
         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
-          <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold font-mono">.env</span>
+          <span className="text-emerald-500 dark:text-emerald-400 text-[9px] sm:text-[10px] font-bold font-mono">
+            .env
+          </span>
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-1.5">
@@ -647,7 +739,9 @@ function EnvItem({
                 >
                   <User className="w-2.5 h-2.5 text-zinc-400 shrink-0" />
                   <span className="shrink-0 hidden sm:inline">Shared by:</span>
-                  <span className="font-semibold text-zinc-750 dark:text-zinc-250 truncate block">{env.ownerEmail}</span>
+                  <span className="font-semibold text-zinc-750 dark:text-zinc-250 truncate block">
+                    {env.ownerEmail}
+                  </span>
                 </Badge>
                 <Badge
                   variant="outline"
@@ -668,7 +762,7 @@ function EnvItem({
                   className="text-[9px] font-mono font-medium text-emerald-700 dark:text-emerald-455 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/10 border border-emerald-100/70 dark:border-emerald-900/30 flex items-center gap-1 normal-case shrink-0"
                 >
                   <Users className="w-2.5 h-2.5 text-emerald-555" />
-                  <span>Shared with {env.sharedWith.length}</span> 
+                  <span>Shared with {env.sharedWith.length}</span>
                 </Badge>
               </div>
             ) : null}
@@ -679,8 +773,14 @@ function EnvItem({
               {env.tags && env.tags.length > 0 && (
                 <>
                   <span>·</span>
-                  {env.tags.map(tag => (
-                    <Badge key={tag} variant="secondary" className="text-[8px] sm:text-[9px] px-1.5 py-0 h-4 border-zinc-200 dark:border-zinc-800 bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{tag}</Badge>
+                  {env.tags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="text-[8px] sm:text-[9px] px-1.5 py-0 h-4 border-zinc-200 dark:border-zinc-800 bg-zinc-100/70 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 uppercase tracking-wider"
+                    >
+                      {tag}
+                    </Badge>
                   ))}
                 </>
               )}
@@ -703,8 +803,14 @@ function EnvItem({
               : "text-zinc-655 dark:text-zinc-400 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/70 hover:text-zinc-900 dark:hover:text-zinc-100"
           )}
         >
-          {isCopied ? <Check className="w-3.5 h-3.5 animate-in zoom-in-50" /> : <Copy className="w-3.5 h-3.5" />}
-          <span className="hidden md:inline">{isCopied ? "Copied" : "Copy"}</span>
+          {isCopied ? (
+            <Check className="w-3.5 h-3.5 animate-in zoom-in-50" />
+          ) : (
+            <Copy className="w-3.5 h-3.5" />
+          )}
+          <span className="hidden md:inline">
+            {isCopied ? "Copied" : "Copy"}
+          </span>
         </Button>
 
         {/* Download */}
@@ -763,7 +869,11 @@ function EnvItem({
               disabled={isDeleting}
               className="h-7 sm:h-8 w-7 sm:w-8 md:w-auto md:px-2.5 p-0 gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-555 dark:text-zinc-455 hover:bg-red-500/10 dark:hover:bg-red-500/20 hover:text-red-555 dark:hover:text-red-455 hover:shadow-sm disabled:opacity-50 transition-all duration-200 rounded-md"
             >
-              {isDeleting ? <Spinner className="border-red-400/60" /> : <Trash2 className="w-3.5 h-3.5" />}
+              {isDeleting ? (
+                <Spinner className="border-red-400/60" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5" />
+              )}
               <span className="hidden md:inline">Delete</span>
             </Button>
           </>
@@ -772,8 +882,6 @@ function EnvItem({
     </div>
   );
 }
-
-
 
 import { SetupPinModal } from "@/components/SetupPinModal";
 
@@ -807,7 +915,10 @@ function SortTagDropdown({
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
@@ -815,7 +926,8 @@ function SortTagDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const activeSort = sortOptions.find((o) => o.value === sortOrder) || sortOptions[0];
+  const activeSort =
+    sortOptions.find((o) => o.value === sortOrder) || sortOptions[0];
   const IconComponent = activeSort.icon;
 
   return (
@@ -828,7 +940,12 @@ function SortTagDropdown({
         <span className="font-semibold text-zinc-700 dark:text-zinc-300 truncate">
           {activeSort.label}
         </span>
-        <ChevronDown className={cn("w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 shrink-0 ml-1.5", isOpen && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            "w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 shrink-0 ml-1.5",
+            isOpen && "rotate-180"
+          )}
+        />
       </Button>
 
       {isOpen && (
@@ -857,10 +974,17 @@ function SortTagDropdown({
                       )}
                     >
                       <span className="flex items-center gap-2">
-                        <OptIcon className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-emerald-500" : "text-zinc-400")} />
+                        <OptIcon
+                          className={cn(
+                            "w-3.5 h-3.5 shrink-0",
+                            isSelected ? "text-emerald-500" : "text-zinc-400"
+                          )}
+                        />
                         {opt.label}
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      )}
                     </button>
                   );
                 })}
@@ -886,10 +1010,19 @@ function SortTagDropdown({
                   )}
                 >
                   <span className="flex items-center gap-2">
-                    <Tag className={cn("w-3.5 h-3.5 shrink-0", tagFilter === "All" ? "text-emerald-500" : "text-zinc-450")} />
+                    <Tag
+                      className={cn(
+                        "w-3.5 h-3.5 shrink-0",
+                        tagFilter === "All"
+                          ? "text-emerald-500"
+                          : "text-zinc-450"
+                      )}
+                    />
                     All Tags
                   </span>
-                  {tagFilter === "All" && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                  {tagFilter === "All" && (
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  )}
                 </button>
 
                 {allTags.map((tag) => {
@@ -909,10 +1042,17 @@ function SortTagDropdown({
                       )}
                     >
                       <span className="flex items-center gap-2">
-                        <Tag className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-emerald-500" : "text-zinc-400")} />
+                        <Tag
+                          className={cn(
+                            "w-3.5 h-3.5 shrink-0",
+                            isSelected ? "text-emerald-500" : "text-zinc-400"
+                          )}
+                        />
                         {tag}
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                      )}
                     </button>
                   );
                 })}
@@ -942,7 +1082,9 @@ export default function HomePage() {
   const [envText, setEnvText] = useState("");
   const [tagsString, setTagsString] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">(
+    "idle"
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const queryClient = useQueryClient();
@@ -953,11 +1095,17 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">("desc");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc" | "lastModified">(
+    "desc"
+  );
   const [tagFilter, setTagFilter] = useState<string>("All");
 
-
-  const { data: paginatedData, isLoading: isLoadingEnvs, refetch, error: envsError } = useQuery({
+  const {
+    data: paginatedData,
+    isLoading: isLoadingEnvs,
+    refetch,
+    error: envsError,
+  } = useQuery({
     queryKey: ["envs", page, searchQuery, typeFilter],
     queryFn: () => getAllEnv(page, limit, searchQuery, typeFilter),
     retry: false,
@@ -965,9 +1113,12 @@ export default function HomePage() {
 
   const envs = paginatedData?.data || [];
   const hasMore = paginatedData?.hasMore || false;
-  
+
   // Check if we need to show the Setup PIN modal
-  const showSetupPin = Boolean(envsError && (envsError as { response?: { status?: number } }).response?.status === 403);
+  const showSetupPin = Boolean(
+    envsError &&
+    (envsError as { response?: { status?: number } }).response?.status === 403
+  );
 
   // Handle CLI Port redirection
   useEffect(() => {
@@ -975,18 +1126,16 @@ export default function HomePage() {
     if (cliPort && !isLoadingEnvs && !showSetupPin && !envsError) {
       // User is fully logged in and PIN is set
       fetch("/api/cli/auth-token", { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           if (data.token) {
             sessionStorage.removeItem("cli_port");
             window.location.href = `http://localhost:${cliPort}/?token=${data.token}`;
           }
         })
-        .catch(err => console.error("Failed to generate CLI token", err));
+        .catch((err) => console.error("Failed to generate CLI token", err));
     }
   }, [isLoadingEnvs, showSetupPin, envsError]);
-
-
 
   // Per-item state
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -1028,15 +1177,22 @@ export default function HomePage() {
     },
     onSettled: () => {
       setIsSaving(false);
-    }
+    },
   });
 
   const handleSave = () => {
     if (!projectName.trim() || !envText.trim()) return;
     setIsSaving(true);
     setSaveStatus("idle");
-    const tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
-    postMutation.mutate({ projectName: projectName.trim(), envContent: envText.trim(), tags });
+    const tags = tagsString
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    postMutation.mutate({
+      projectName: projectName.trim(),
+      envContent: envText.trim(),
+      tags,
+    });
   };
 
   const handleCopy = (env: EnvProject) => {
@@ -1047,7 +1203,9 @@ export default function HomePage() {
   };
 
   const handleDownload = (env: EnvProject) => {
-    const blob = new Blob([env.envContent], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([env.envContent], {
+      type: "text/plain;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -1066,7 +1224,7 @@ export default function HomePage() {
     },
     onSettled: () => {
       setIsDeletingId(null);
-    }
+    },
   });
 
   const handleDeleteConfirm = () => {
@@ -1076,18 +1234,32 @@ export default function HomePage() {
   };
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, name, content, tags }: { id: string, name: string, content: string, tags: string[] }) => 
-      updateAEnv(id, { projectName: name, envContent: content, tags }),
+    mutationFn: ({
+      id,
+      name,
+      content,
+      tags,
+    }: {
+      id: string;
+      name: string;
+      content: string;
+      tags: string[];
+    }) => updateAEnv(id, { projectName: name, envContent: content, tags }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["envs"] });
-    }
+    },
   });
 
-  const handleUpdate = async (id: string, name: string, content: string, tags: string[]) => {
+  const handleUpdate = async (
+    id: string,
+    name: string,
+    content: string,
+    tags: string[]
+  ) => {
     await updateMutation.mutateAsync({ id, name, content, tags });
   };
 
-  const allTags = Array.from(new Set(envs.flatMap(e => e.tags || []))).sort();
+  const allTags = Array.from(new Set(envs.flatMap((e) => e.tags || []))).sort();
 
   const leaveMutation = useMutation({
     mutationFn: leaveSharedEnv,
@@ -1097,7 +1269,7 @@ export default function HomePage() {
     },
     onSettled: () => {
       setIsLeavingId(null);
-    }
+    },
   });
 
   const handleLeaveConfirm = () => {
@@ -1107,14 +1279,21 @@ export default function HomePage() {
   };
 
   const filteredEnvs = envs
-    .filter((e) => tagFilter === "All" || (e.tags && e.tags.includes(tagFilter)))
+    .filter(
+      (e) => tagFilter === "All" || (e.tags && e.tags.includes(tagFilter))
+    )
     .sort((a, b) => {
       if (sortOrder === "lastModified") {
-        const aTime = a.lastModified ? new Date(a.lastModified).getTime() : new Date(a.createdAt).getTime();
-        const bTime = b.lastModified ? new Date(b.lastModified).getTime() : new Date(b.createdAt).getTime();
+        const aTime = a.lastModified
+          ? new Date(a.lastModified).getTime()
+          : new Date(a.createdAt).getTime();
+        const bTime = b.lastModified
+          ? new Date(b.lastModified).getTime()
+          : new Date(b.createdAt).getTime();
         return bTime - aTime;
       }
-      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      const diff =
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       return sortOrder === "asc" ? diff : -diff;
     });
 
@@ -1122,7 +1301,6 @@ export default function HomePage() {
     <TooltipProvider>
       <SetupPinModal open={showSetupPin} />
       <div className="min-h-screen min-h-dvh bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 font-mono transition-colors duration-200">
-
         {/* Grid background – light */}
         <div
           className="fixed inset-0 pointer-events-none dark:hidden"
@@ -1168,7 +1346,10 @@ export default function HomePage() {
               </div>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-row gap-2 mt-2">
-              <AlertDialogCancel disabled={!!isDeletingId} className="flex-1 text-xs sm:text-sm h-auto py-2.5">
+              <AlertDialogCancel
+                disabled={!!isDeletingId}
+                className="flex-1 text-xs sm:text-sm h-auto py-2.5"
+              >
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
@@ -1177,9 +1358,15 @@ export default function HomePage() {
                 className="flex-1 bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-700 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 text-xs sm:text-sm gap-2 h-auto py-2.5"
               >
                 {isDeletingId ? (
-                  <><Spinner className="border-red-400/40" /><span>Deleting…</span></>
+                  <>
+                    <Spinner className="border-red-400/40" />
+                    <span>Deleting…</span>
+                  </>
                 ) : (
-                  <><Trash2 className="w-3.5 h-3.5" /><span>Delete</span></>
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </>
                 )}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -1196,11 +1383,9 @@ export default function HomePage() {
 
         {/* ── Page content ───────────────────────────────────────────────────── */}
         <div className="relative max-w-3xl mx-auto px-3 sm:px-5 md:px-6 py-6 sm:py-8 md:py-12">
-
           {/* ── Header ──────────────────────────────────────────────────────── */}
           <div className="mb-7 sm:mb-10">
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-
               {/* Branding */}
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -1222,7 +1407,10 @@ export default function HomePage() {
                   </Button>
                 </SheetTrigger>
 
-                <SheetContent side="right" className="w-[270px] sm:w-72 font-mono p-0">
+                <SheetContent
+                  side="right"
+                  className="w-[270px] sm:w-72 font-mono p-0"
+                >
                   <SheetHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b border-zinc-100 dark:border-zinc-800">
                     <SheetTitle className="text-[11px] tracking-[0.25em] uppercase text-zinc-400 dark:text-zinc-500 font-bold text-left">
                       Menu
@@ -1251,13 +1439,22 @@ export default function HomePage() {
                     <Button
                       variant="outline"
                       className="justify-between h-10 sm:h-11 text-sm font-semibold tracking-wide border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100"
-                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                      onClick={() =>
+                        setTheme(theme === "dark" ? "light" : "dark")
+                      }
                     >
                       <div className="flex items-center gap-3">
-                        {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                        {theme === "dark" ? (
+                          <Sun className="w-4 h-4" />
+                        ) : (
+                          <Moon className="w-4 h-4" />
+                        )}
                         Theme
                       </div>
-                      <Badge variant="outline" className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500"
+                      >
                         {theme === "dark" ? "Light" : "Dark"}
                       </Badge>
                     </Button>
@@ -1282,7 +1479,8 @@ export default function HomePage() {
               className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mt-2 sm:mt-3"
               style={{ fontFamily: "'Courier New', monospace" }}
             >
-              <span className="text-emerald-500 dark:text-emerald-400">.</span>env
+              <span className="text-emerald-500 dark:text-emerald-400">.</span>
+              env
               <span className="text-zinc-300 dark:text-zinc-700 ml-2 sm:ml-3 text-lg sm:text-xl md:text-2xl">
                 manager
               </span>
@@ -1350,7 +1548,12 @@ export default function HomePage() {
                     <Upload className="w-3 h-3" />
                     <span>Upload .env</span>
                   </Button>
-                  <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
                 </div>
                 <EnvEditor value={envText} onChange={setEnvText} rows={12} />
               </div>
@@ -1366,9 +1569,15 @@ export default function HomePage() {
                   )}
                 >
                   {isSaving ? (
-                    <><Spinner className="border-white/40" /><span>Saving…</span></>
+                    <>
+                      <Spinner className="border-white/40" />
+                      <span>Saving…</span>
+                    </>
                   ) : (
-                    <><Save className="w-3.5 h-3.5" /><span>Save Env</span></>
+                    <>
+                      <Save className="w-3.5 h-3.5" />
+                      <span>Save Env</span>
+                    </>
                   )}
                 </Button>
                 {saveStatus === "success" && (
@@ -1387,7 +1596,6 @@ export default function HomePage() {
 
             {/* ── ENVS TAB ──────────────────────────────────────────────────── */}
             <TabsContent value="envs" className="mt-0 space-y-3 sm:space-y-4">
-
               {/* Search + Filters Toolbar */}
               <div className="flex flex-col sm:flex-row gap-2">
                 {/* Search */}
@@ -1422,8 +1630,16 @@ export default function HomePage() {
                     {[
                       { id: "all", tooltip: "All Projects", icon: FolderOpen },
                       { id: "owned", tooltip: "My Projects", icon: User },
-                      { id: "sharedWithMe", tooltip: "Shared with me", icon: UserCheck },
-                      { id: "sharedWithOthers", tooltip: "Shared with others", icon: Share2 },
+                      {
+                        id: "sharedWithMe",
+                        tooltip: "Shared with me",
+                        icon: UserCheck,
+                      },
+                      {
+                        id: "sharedWithOthers",
+                        tooltip: "Shared with others",
+                        icon: Share2,
+                      },
                     ].map((tab) => {
                       const isActive = typeFilter === tab.id;
                       const TabIcon = tab.icon;
@@ -1445,7 +1661,10 @@ export default function HomePage() {
                               <TabIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                             </button>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" className="font-mono text-[10px] tracking-wide uppercase">
+                          <TooltipContent
+                            side="bottom"
+                            className="font-mono text-[10px] tracking-wide uppercase"
+                          >
                             {tab.tooltip}
                           </TooltipContent>
                         </Tooltip>
@@ -1518,7 +1737,7 @@ export default function HomePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={page === 1 || isLoadingEnvs}
                       className="font-mono text-[10px] tracking-widest uppercase border-zinc-200 dark:border-zinc-800"
                     >
@@ -1530,7 +1749,7 @@ export default function HomePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPage(p => p + 1)}
+                      onClick={() => setPage((p) => p + 1)}
                       disabled={!hasMore || isLoadingEnvs}
                       className="font-mono text-[10px] tracking-widest uppercase border-zinc-200 dark:border-zinc-800"
                     >
@@ -1538,7 +1757,8 @@ export default function HomePage() {
                     </Button>
                   </div>
                   <p className="text-[10px] sm:text-[11px] text-zinc-300 dark:text-zinc-700 text-center tracking-widest uppercase">
-                    {filteredEnvs.length} project{filteredEnvs.length !== 1 ? "s" : ""} on this page
+                    {filteredEnvs.length} project
+                    {filteredEnvs.length !== 1 ? "s" : ""} on this page
                     {searchQuery && ` matching "${searchQuery}"`}
                   </p>
                 </div>
@@ -1574,7 +1794,10 @@ export default function HomePage() {
             </div>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-2 mt-2">
-            <AlertDialogCancel disabled={!!isLeavingId} className="flex-1 text-xs sm:text-sm h-auto py-2.5">
+            <AlertDialogCancel
+              disabled={!!isLeavingId}
+              className="flex-1 text-xs sm:text-sm h-auto py-2.5"
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -1583,9 +1806,15 @@ export default function HomePage() {
               className="flex-1 bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-700 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 text-xs sm:text-sm gap-2 h-auto py-2.5"
             >
               {isLeavingId ? (
-                <><Spinner className="border-red-400/40" /><span>Leaving…</span></>
+                <>
+                  <Spinner className="border-red-400/40" />
+                  <span>Leaving…</span>
+                </>
               ) : (
-                <><LogOut className="w-3.5 h-3.5" /><span>Leave</span></>
+                <>
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Leave</span>
+                </>
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

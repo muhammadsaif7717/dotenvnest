@@ -20,10 +20,7 @@ export async function POST(req: NextRequest) {
     const user = await db.collection("users").findOne({ email });
 
     if (!user) {
-      return NextResponse.json(
-        { message: "User not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
     }
 
     if (user.isVerified) {
@@ -40,7 +37,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (user.verificationCodeExpires && new Date() > new Date(user.verificationCodeExpires)) {
+    if (
+      user.verificationCodeExpires &&
+      new Date() > new Date(user.verificationCodeExpires)
+    ) {
       return NextResponse.json(
         { message: "Verification code has expired." },
         { status: 400 }
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       { email },
       {
         $set: { isVerified: true },
-        $unset: { verificationCode: "", verificationCodeExpires: "" }
+        $unset: { verificationCode: "", verificationCodeExpires: "" },
       }
     );
 
@@ -68,10 +68,7 @@ export async function POST(req: NextRequest) {
       path: "/",
     });
 
-    return NextResponse.json(
-      { success: true },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error("[verify] error:", err);
     return NextResponse.json(

@@ -5,18 +5,21 @@ import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const Icon = {
   Sun: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <circle cx="12" cy="12" r="5" />
       <line x1="12" y1="1" x2="12" y2="3" />
       <line x1="12" y1="21" x2="12" y2="23" />
@@ -29,43 +32,93 @@ const Icon = {
     </svg>
   ),
   Moon: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
   Lock: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   ),
   User: () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
     </svg>
   ),
   Eye: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
   ),
   EyeOff: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   ),
   ArrowRight: () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+    >
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
     </svg>
   ),
   Warn: () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="shrink-0"
+    >
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
       <line x1="12" y1="9" x2="12" y2="13" />
       <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -143,7 +196,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-background text-foreground font-mono transition-colors duration-200 flex flex-col">
-
       {/* Grid background – light */}
       <div
         className="fixed inset-0 pointer-events-none dark:hidden"
@@ -172,7 +224,10 @@ export default function LoginPage() {
             className="text-base sm:text-lg font-bold tracking-tight"
             style={{ fontFamily: "'Courier New', monospace" }}
           >
-            <span className="text-emerald-500 dark:text-emerald-400">.</span>env<span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">nest</span>
+            <span className="text-emerald-500 dark:text-emerald-400">.</span>env
+            <span className="text-zinc-300 dark:text-zinc-600 ml-1.5 sm:ml-2 text-xs sm:text-sm font-semibold">
+              nest
+            </span>
           </span>
         </div>
 
@@ -184,8 +239,12 @@ export default function LoginPage() {
           className="flex items-center gap-1.5 sm:gap-2 h-8 px-2.5 sm:px-3 text-[10px] sm:text-[11px] font-semibold tracking-wide text-zinc-500 dark:text-zinc-500 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 hover:text-zinc-800 dark:hover:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700"
           title="Toggle theme"
         >
-          <span className="dark:hidden"><Icon.Moon /></span>
-          <span className="hidden dark:inline"><Icon.Sun /></span>
+          <span className="dark:hidden">
+            <Icon.Moon />
+          </span>
+          <span className="hidden dark:inline">
+            <Icon.Sun />
+          </span>
           <span className="hidden xs:inline dark:hidden">Dark</span>
           <span className="hidden xs:inline dark:inline">Light</span>
         </Button>
@@ -194,7 +253,6 @@ export default function LoginPage() {
       {/* ── Main content ────────────────────────────────────────────────────── */}
       <main className="relative flex flex-1 items-center justify-center px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <div className="w-full max-w-xs sm:max-w-sm">
-
           {/* Header text */}
           <div className="mb-6 sm:mb-8">
             <p className="text-[10px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.25em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold mb-1.5 sm:mb-2">
@@ -213,7 +271,6 @@ export default function LoginPage() {
 
           {/* ── Card ────────────────────────────────────────────────────────── */}
           <Card className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 shadow-sm overflow-hidden p-0">
-
             {/* VSCode-style title bar */}
             <CardHeader className="flex flex-row items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 space-y-0">
               <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#ff5f56]" />
@@ -227,7 +284,6 @@ export default function LoginPage() {
             {/* Form body */}
             <CardContent className="p-4 sm:p-6">
               <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
-
                 {/* Username */}
                 <div className="space-y-1 sm:space-y-1.5">
                   <Label className="text-[10px] sm:text-[11px] tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-400 dark:text-zinc-500 font-semibold">
@@ -240,7 +296,10 @@ export default function LoginPage() {
                     <Input
                       type="email"
                       value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setError(null);
+                      }}
                       placeholder="you@example.com"
                       autoComplete="email"
                       spellCheck={false}
@@ -262,7 +321,10 @@ export default function LoginPage() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setError(null);
+                      }}
                       placeholder="••••••••••••"
                       autoComplete="current-password"
                       className="w-full bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-9 pr-10 py-2.5 sm:py-3 text-xs sm:text-sm text-foreground placeholder-zinc-300 dark:placeholder-zinc-700 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 dark:focus-visible:border-emerald-500 h-auto rounded-lg"
@@ -275,7 +337,9 @@ export default function LoginPage() {
                       size="icon"
                       onClick={() => setShowPassword((s) => !s)}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-[#888] hover:bg-transparent"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                     >
                       {showPassword ? <Icon.EyeOff /> : <Icon.Eye />}
                     </Button>
@@ -301,17 +365,20 @@ export default function LoginPage() {
                     py-2.5 sm:py-3 h-auto rounded-lg
                     text-xs sm:text-sm font-bold tracking-widest uppercase
                     transition-all duration-200 mt-1
-                    ${!canSubmit
-                      ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-300 dark:text-zinc-700 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                      : isLoading
-                        ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
-                        : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
+                    ${
+                      !canSubmit
+                        ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-300 dark:text-zinc-700 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                        : isLoading
+                          ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
+                          : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
                     }
                   `}
                 >
                   {isLoading ? (
                     <>
-                      <Spinner color={theme === "dark" ? "#34d399" : "#10b981"} />
+                      <Spinner
+                        color={theme === "dark" ? "#34d399" : "#10b981"}
+                      />
                       <span>Authenticating...</span>
                     </>
                   ) : (
@@ -321,14 +388,19 @@ export default function LoginPage() {
                     </>
                   )}
                 </Button>
-
               </form>
             </CardContent>
           </Card>
 
           {/* Footer note */}
           <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-zinc-500 mt-4 tracking-widest">
-            Don&apos;t have an account? <a href="/signup" className="text-emerald-500 dark:text-emerald-400 hover:underline">Sign up</a>
+            Don&apos;t have an account?{" "}
+            <a
+              href="/signup"
+              className="text-emerald-500 dark:text-emerald-400 hover:underline"
+            >
+              Sign up
+            </a>
           </p>
           <p className="text-center text-[9px] sm:text-[11px] text-zinc-300 dark:text-zinc-800 mt-2 tracking-widest uppercase">
             DOTENVNEST · Secure · Private

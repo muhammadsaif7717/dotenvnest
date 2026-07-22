@@ -11,24 +11,37 @@ export function unshareCommand(program: Command) {
     .action(async (projectName, email) => {
       const config = readConfig();
       if (!config.token) {
-        console.log(chalk.red("You are not logged in. Please run ") + chalk.cyan("dotenvnest login") + chalk.red(" first."));
+        console.log(
+          chalk.red("You are not logged in. Please run ") +
+            chalk.cyan("dotenvnest login") +
+            chalk.red(" first.")
+        );
         return;
       }
 
       const finalProjectName = projectName.trim();
 
-      const emails = email.split(",").map((e: string) => e.trim()).filter((e: string) => e.length > 0);
+      const emails = email
+        .split(",")
+        .map((e: string) => e.trim())
+        .filter((e: string) => e.length > 0);
 
       for (const e of emails) {
-        const spinner = ora(`Revoking access to project ${chalk.bold(finalProjectName)} for ${chalk.cyan(e)}...`).start();
+        const spinner = ora(
+          `Revoking access to project ${chalk.bold(finalProjectName)} for ${chalk.cyan(e)}...`
+        ).start();
 
         try {
           const res = await api.post("/unshare", {
             projectName: finalProjectName,
-            email: e
+            email: e,
           });
-          
-          spinner.succeed(chalk.green(`Successfully revoked access to ${finalProjectName} for ${e}!`));
+
+          spinner.succeed(
+            chalk.green(
+              `Successfully revoked access to ${finalProjectName} for ${e}!`
+            )
+          );
         } catch (error: any) {
           spinner.fail(chalk.red(`Failed to unshare project with ${e}.`));
           console.log(chalk.red(`Error: ${getApiError(error)}`));
