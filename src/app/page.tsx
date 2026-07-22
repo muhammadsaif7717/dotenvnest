@@ -77,6 +77,7 @@ import {
   FolderOpen,
   UserCheck,
   Share2,
+  Terminal,
 } from "lucide-react";
 import { computeDiff } from "@/lib/diff";
 
@@ -968,6 +969,23 @@ export default function HomePage() {
   // Check if we need to show the Setup PIN modal
   const showSetupPin = Boolean(envsError && (envsError as { response?: { status?: number } }).response?.status === 403);
 
+  // Handle CLI Port redirection
+  useEffect(() => {
+    const cliPort = sessionStorage.getItem("cli_port");
+    if (cliPort && !isLoadingEnvs && !showSetupPin && !envsError) {
+      // User is fully logged in and PIN is set
+      fetch("/api/cli/auth-token", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          if (data.token) {
+            sessionStorage.removeItem("cli_port");
+            window.location.href = `http://localhost:${cliPort}/?token=${data.token}`;
+          }
+        })
+        .catch(err => console.error("Failed to generate CLI token", err));
+    }
+  }, [isLoadingEnvs, showSetupPin, envsError]);
+
 
 
   // Per-item state
@@ -1219,6 +1237,15 @@ export default function HomePage() {
                     >
                       <User className="w-4 h-4" />
                       Account
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="justify-start gap-3 h-10 sm:h-11 text-sm font-semibold tracking-wide border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100"
+                      onClick={() => router.push("/docs")}
+                    >
+                      <Terminal className="w-4 h-4" />
+                      CLI Docs
                     </Button>
 
                     <Button

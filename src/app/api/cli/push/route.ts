@@ -1,148 +1,107 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 import clientPromise, { dbName } from "@/lib/connectDb";
 import { encryptWithUserPin, decryptWithGlobalSecret } from "@/lib/crypto";
 
-/**
- * POST /api/cli/push
- *
- * Secure endpoint for the `dotenvnest push` CLI command.
- * Authenticates the user with email + password (bcrypt verified),
- * then encrypts and upserts the env content for the given project.
- *
- * Body: { email, password, projectName, envContent }
- *
- * Behaviour:
- *  - Project exists (owned by user) → update envContent + lastModified
- *  - Project does not exist         → create new project document
- *  - Project exists but owned by someone else → 403 (cannot overwrite)
- */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { email, password, projectName, envContent } = body;
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const cliToken = authHeader.split(" ")[1];
 
-    // ── Validate inputs ──────────────────────────────────────────────────────
-    if (!email || !password || !projectName || !envContent) {
+    const body = await req.json();
+    const { projectName, envContent, ownerEmail } = body;
+
+    if (!projectName || !envContent) {
       return NextResponse.json(
-        { error: "email, password, projectName and envContent are required." },
+        { error: "projectName and envContent are required." },
         { status: 400 }
       );
     }
 
     const client = await clientPromise;
     const db = client.db(dbName);
-
-    // ── Find & verify user ───────────────────────────────────────────────────
-    const user = await db.collection("users").findOne({
-      email: email.trim().toLowerCase(),
-    });
-
+    const usersCollection = db.collection("users");
+    
+    // Find the current user using cliToken
+    const user = await usersCollection.findOne({ cliToken });
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid credentials." },
-        { status: 401 }
-      );
-    }
-
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { error: "Account email is not verified. Please verify your email first." },
-        { status: 403 }
-      );
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return NextResponse.json(
-        { error: "Invalid credentials." },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!user.encrypted_user_secret) {
-      return NextResponse.json(
-        { error: "PIN setup required. Please set up your encryption PIN first." },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "PIN setup required. Please login via website." }, { status: 403 });
     }
 
-    // ── Resolve user's PIN ───────────────────────────────────────────────────
-    const rawPin = decryptWithGlobalSecret(user.encrypted_user_secret);
+    const collection = db.collection("envs");
+    let targetEnv = null;
+    let targetPin = decryptWithGlobalSecret(user.encrypted_user_secret);
 
-    // ── Encrypt the new env content ──────────────────────────────────────────
-    const encryptedContent = encryptWithUserPin(envContent.trim(), rawPin);
-    const now = new Date().toISOString();
+    if (ownerEmail && ownerEmail !== user.email) {
+      // Trying to push to a shared project
+      targetEnv = await collection.findOne({
+        projectName: projectName,
+        "sharedWith.email": user.email
+      });
 
-    const envCollection = db.collection("envs");
+      if (!targetEnv) {
+        return NextResponse.json({ error: "Shared project not found." }, { status: 404 });
+      }
 
-    // ── Check if project already exists (owned by this user) ─────────────────
-    const existing = await envCollection.findOne({
-      projectName: projectName.trim(),
-      userId: user._id.toString(),
-    });
+      // Check if user has edit access
+      const share = targetEnv.sharedWith.find((s: any) => s.email === user.email);
+      if (!share || share.role !== "editor") {
+        return NextResponse.json({ error: "You only have read access to this shared project." }, { status: 403 });
+      }
 
-    if (existing) {
-      // ── Project exists → UPDATE ──────────────────────────────────────────
-      await envCollection.updateOne(
-        { _id: existing._id },
-        {
-          $set: {
+      // We need the owner's PIN to encrypt the content for their project
+      const owner = await usersCollection.findOne({ _id: targetEnv.userId });
+      if (!owner || !owner.encrypted_user_secret) {
+        return NextResponse.json({ error: "Owner PIN not found." }, { status: 500 });
+      }
+      targetPin = decryptWithGlobalSecret(owner.encrypted_user_secret);
+    } else {
+      // Pushing to own project
+      targetEnv = await collection.findOne({
+        userId: user._id.toString(),
+        projectName: projectName
+      });
+    }
+
+    const encryptedContent = encryptWithUserPin(envContent.trim(), targetPin);
+
+    if (targetEnv) {
+      // Update existing
+      await collection.updateOne(
+        { _id: targetEnv._id },
+        { 
+          $set: { 
             envContent: encryptedContent,
-            lastModified: now,
-          },
+            lastModified: new Date().toISOString()
+          } 
         }
       );
-
-      return NextResponse.json(
-        {
-          created: false,
-          updated: true,
-          projectName: projectName.trim(),
-          message: `Project "${projectName}" updated successfully.`,
-        },
-        { status: 200 }
-      );
-    }
-
-    // ── Check if project exists but owned by someone else ────────────────────
-    const foreignProject = await envCollection.findOne({
-      projectName: projectName.trim(),
-    });
-
-    if (foreignProject) {
-      return NextResponse.json(
-        {
-          error: `Project "${projectName}" already exists and is owned by another user.`,
-        },
-        { status: 403 }
-      );
-    }
-
-    // ── Project does not exist → CREATE ──────────────────────────────────────
-    await envCollection.insertOne({
-      userId: user._id.toString(),
-      projectName: projectName.trim(),
-      envContent: encryptedContent,
-      tags: [],
-      createdAt: now,
-      lastModified: now,
-    });
-
-    return NextResponse.json(
-      {
-        created: true,
-        updated: false,
+      return NextResponse.json({ message: "Environment updated successfully." }, { status: 200 });
+    } else {
+      // Create new
+      if (ownerEmail && ownerEmail !== user.email) {
+         return NextResponse.json({ error: "Cannot create a new shared project. Ask the owner to create and share it." }, { status: 403 });
+      }
+      await collection.insertOne({
+        userId: user._id.toString(),
         projectName: projectName.trim(),
-        message: `Project "${projectName}" created successfully.`,
-      },
-      { status: 201 }
-    );
+        envContent: encryptedContent,
+        tags: [],
+        sharedWith: [],
+        createdAt: new Date().toISOString(),
+        lastModified: new Date().toISOString(),
+      });
+      return NextResponse.json({ message: "Environment created successfully." }, { status: 201 });
+    }
+
   } catch (error) {
-    console.error("POST /api/cli/push error:", error);
-    return NextResponse.json(
-      { error: "Internal server error." },
-      { status: 500 }
-    );
+    console.error("CLI push error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

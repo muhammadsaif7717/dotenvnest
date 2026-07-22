@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
   CardHeader,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const Icon = {
@@ -91,6 +91,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cliPort = params.get("cli_port");
+    if (cliPort) {
+      sessionStorage.setItem("cli_port", cliPort);
+    }
+  }, []);
 
   const canSubmit = email.trim().length > 0 && password.length > 0;
 
@@ -290,8 +298,8 @@ export default function LoginPage() {
                     ${!canSubmit
                       ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-300 dark:text-zinc-700 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed hover:bg-zinc-100 dark:hover:bg-zinc-900"
                       : isLoading
-                      ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
-                      : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
+                        ? "bg-emerald-50 dark:bg-emerald-400/20 text-emerald-500 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 cursor-wait hover:bg-emerald-50 dark:hover:bg-emerald-900/50"
+                        : "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-zinc-950 hover:bg-emerald-600 dark:hover:bg-emerald-500 active:scale-[0.98]"
                     }
                   `}
                 >

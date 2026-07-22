@@ -1,137 +1,83 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 import clientPromise, { dbName } from "@/lib/connectDb";
-import { decryptWithUserPin, decryptWithGlobalSecret } from "@/lib/crypto";
+import { decryptWithGlobalSecret, decryptWithUserPin } from "@/lib/crypto";
 
-/**
- * POST /api/cli/pull
- *
- * Secure endpoint for the `dotenvnest pull` CLI command.
- * Authenticates the user with email + password (bcrypt verified),
- * then decrypts and returns the requested project's env content.
- *
- * Body: { email, password, projectName }
- *
- * Security layers:
- *  1. Email must exist and be verified in DB
- *  2. Password verified with bcrypt
- *  3. Project must be owned by (or shared with) that user
- *  4. Env content decrypted using the user's PIN (AES-256-CBC)
- */
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { email, password, projectName } = body;
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const cliToken = authHeader.split(" ")[1];
 
-    // ── Validate inputs ──────────────────────────────────────────────────────
-    if (!email || !password || !projectName) {
-      return NextResponse.json(
-        { error: "email, password and projectName are required." },
-        { status: 400 }
-      );
+    const { searchParams } = new URL(req.url);
+    const projectName = searchParams.get("projectName");
+    const ownerEmail = searchParams.get("ownerEmail");
+
+    if (!projectName) {
+      return NextResponse.json({ error: "projectName is required." }, { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db(dbName);
-
-    // ── Find & verify user ───────────────────────────────────────────────────
-    const user = await db.collection("users").findOne({
-      email: email.trim().toLowerCase(),
-    });
-
+    const usersCollection = db.collection("users");
+    
+    // Find the current user using cliToken
+    const user = await usersCollection.findOne({ cliToken });
     if (!user) {
-      // Return generic message to prevent email enumeration
-      return NextResponse.json(
-        { error: "Invalid credentials." },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { error: "Account email is not verified. Please verify your email first." },
-        { status: 403 }
-      );
+    if (!user.encrypted_user_secret) {
+      return NextResponse.json({ error: "PIN setup required. Please login via website." }, { status: 403 });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return NextResponse.json(
-        { error: "Invalid credentials." },
-        { status: 401 }
-      );
-    }
+    const collection = db.collection("envs");
+    let targetEnv = null;
+    let targetPin = decryptWithGlobalSecret(user.encrypted_user_secret);
 
-    // ── Find project (owned or shared with editor/viewer access) ─────────────
-    const envCollection = db.collection("envs");
+    if (ownerEmail && ownerEmail !== user.email) {
+      // Pulling from a shared project
+      targetEnv = await collection.findOne({
+        projectName: projectName,
+        "sharedWith.email": user.email
+      });
 
-    // Try owned project first
-    let project = await envCollection.findOne({
-      projectName: projectName.trim(),
-      userId: user._id.toString(),
-    });
+      if (!targetEnv) {
+        return NextResponse.json({ error: "Shared project not found." }, { status: 404 });
+      }
 
-    // If not owned, check shared access
-    if (!project) {
-      project = await envCollection.findOne({
-        projectName: projectName.trim(),
-        "sharedWith.email": email.trim().toLowerCase(),
+      // Check if user has at least read access (all shares have at least read access)
+      // Get owner PIN to decrypt
+      const owner = await usersCollection.findOne({ _id: targetEnv.userId });
+      if (!owner || !owner.encrypted_user_secret) {
+        return NextResponse.json({ error: "Owner PIN not found." }, { status: 500 });
+      }
+      targetPin = decryptWithGlobalSecret(owner.encrypted_user_secret);
+    } else {
+      // Pulling own project
+      targetEnv = await collection.findOne({
+        userId: user._id.toString(),
+        projectName: projectName
       });
     }
 
-    if (!project) {
-      return NextResponse.json(
-        { error: `Project "${projectName}" not found or you don't have access.` },
-        { status: 404 }
-      );
+    if (!targetEnv) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
-    // ── Resolve the PIN of the project OWNER (not the shared user) ───────────
-    let ownerUser = user;
-    if (project.userId !== user._id.toString()) {
-      // Shared project — need to get the owner's PIN
-      const { ObjectId } = await import("mongodb");
-      ownerUser = await db
-        .collection("users")
-        .findOne({ _id: new ObjectId(project.userId as string) }) as typeof user;
-
-      if (!ownerUser) {
-        return NextResponse.json(
-          { error: "Project owner not found." },
-          { status: 500 }
-        );
-      }
+    let rawEnvContent = "";
+    try {
+      rawEnvContent = decryptWithUserPin(targetEnv.envContent, targetPin);
+    } catch (e) {
+       console.error("Decryption failed for project", projectName);
+       return NextResponse.json({ error: "Failed to decrypt environment variables." }, { status: 500 });
     }
 
-    if (!ownerUser.encrypted_user_secret) {
-      return NextResponse.json(
-        { error: "Project owner has not set up their encryption PIN yet." },
-        { status: 403 }
-      );
-    }
+    return NextResponse.json({ envContent: rawEnvContent }, { status: 200 });
 
-    // ── Decrypt and return ───────────────────────────────────────────────────
-    const rawPin = decryptWithGlobalSecret(ownerUser.encrypted_user_secret);
-    const decryptedContent = decryptWithUserPin(project.envContent, rawPin);
-
-    return NextResponse.json(
-      {
-        projectName: project.projectName,
-        envContent: decryptedContent,
-        keyCount: decryptedContent
-          .split("\n")
-          .filter(
-            (l: string) =>
-              l.trim() && !l.trim().startsWith("#") && l.includes("=")
-          ).length,
-      },
-      { status: 200 }
-    );
   } catch (error) {
-    console.error("POST /api/cli/pull error:", error);
-    return NextResponse.json(
-      { error: "Internal server error." },
-      { status: 500 }
-    );
+    console.error("CLI pull error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

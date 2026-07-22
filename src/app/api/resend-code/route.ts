@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import clientPromise, { dbName } from "@/lib/connectDb";
 import { generateOTP, sendVerificationEmail } from "@/lib/email";
 
-export async function POST(req: NextRequest) { console.log("RESEND CODE HIT");
+export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
     if (!email) {

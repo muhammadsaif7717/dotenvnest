@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+import { Command } from "commander";
+import chalk from "chalk";
+import { loginCommand } from "./commands/login";
+import { pushCommand } from "./commands/push";
+import { pullCommand } from "./commands/pull";
+import { findCommand } from "./commands/find";
+import { shareCommand } from "./commands/share";
+import { unshareCommand } from "./commands/unshare";
+import { docsCommand } from "./commands/docs";
+import { logoutCommand } from "./commands/logout";
+
+const program = new Command();
+
+program
+  .name("dotenvnest")
+  .description(chalk.hex('#10b981')("Dotenvnest CLI - Securely manage your .env files across projects"))
+  .version("1.0.0");
+
+// Override help to point to docs
+program.on("--help", () => {
+  console.log("");
+  console.log(chalk.bold("For more detailed documentation, visit: ") + chalk.cyan.underline("https://dotenvnest.vercel.app/docs"));
+  console.log(chalk.gray("Or run ") + chalk.cyan("dotenvnest docs") + chalk.gray(" to open the docs in your browser."));
+});
+
+// Setup commands
+loginCommand(program);
+pushCommand(program);
+pullCommand(program);
+findCommand(program);
+shareCommand(program);
+unshareCommand(program);
+docsCommand(program);
+logoutCommand(program);
+
+program.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

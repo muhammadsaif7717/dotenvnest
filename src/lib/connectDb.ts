@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
     const client = new MongoClient(uri, options);
     global._mongoClientPromise = client.connect().then((c) => {
-      console.log("✅ MongoDB connected (development)");
+      // connected
       return c;
     });
   }
@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === "development") {
   // In production, create a fresh client
   const client = new MongoClient(uri, options);
   clientPromise = client.connect().then((c) => {
-    console.log("✅ MongoDB connected (production)");
+    // connected
     return c;
   });
 }

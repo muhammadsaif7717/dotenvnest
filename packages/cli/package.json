@@ -1,0 +1,35 @@
+{
+  "name": "dotenvnest",
+  "version": "1.0.0",
+  "description": "Securely manage and sync your .env files across projects.",
+  "main": "dist/index.js",
+  "bin": {
+    "dotenvnest": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs --clean",
+    "dev": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "commander": "^15.0.0",
+    "dotenv": "^17.4.2",
+    "inquirer": "^8.2.7",
+    "open": "^8.4.2",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.10",
+    "@types/node": "^26.1.1",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2"
+  }
+}
