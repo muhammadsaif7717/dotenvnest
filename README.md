@@ -107,6 +107,12 @@ dotenvnest share my-api-server "colleague@example.com, manager@example.com" --ac
 dotenvnest unshare my-api-server "colleague@example.com, manager@example.com"
 ```
 
+#### `leave` (or `exit`) — Leave a shared project
+Removes your access from a project that someone else has shared with you.
+```bash
+dotenvnest leave <project-name>
+```
+
 #### `docs` & `logout`
 - `dotenvnest docs`: Opens the full documentation in your browser.
 - `dotenvnest logout`: Clears your local authentication session.

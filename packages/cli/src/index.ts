@@ -5,6 +5,7 @@ import { Command } from "commander";
 import { delCommand } from "./commands/del";
 import { docsCommand } from "./commands/docs";
 import { findCommand } from "./commands/find";
+import { leaveCommand } from "./commands/leave";
 import { loginCommand } from "./commands/login";
 import { logoutCommand } from "./commands/logout";
 import { pullCommand } from "./commands/pull";
@@ -12,12 +13,15 @@ import { pushCommand } from "./commands/push";
 import { shareCommand } from "./commands/share";
 import { unshareCommand } from "./commands/unshare";
 
+// Import package.json using require to avoid module resolution issues
+const pkg = require("../package.json");
+
 const program = new Command();
 
 program
   .name("dotenvnest")
   .description(chalk.hex('#10b981')("Dotenvnest CLI - Securely manage your .env files across projects"))
-  .version("1.0.0");
+  .version(pkg.version);
 
 // Override help to point to docs
 program.on("--help", () => {
@@ -33,6 +37,7 @@ pullCommand(program);
 findCommand(program);
 shareCommand(program);
 unshareCommand(program);
+leaveCommand(program);
 docsCommand(program);
 logoutCommand(program);
 delCommand(program);

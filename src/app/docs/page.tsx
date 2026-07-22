@@ -157,6 +157,13 @@ export default function DocsPage() {
             />
 
             <CommandDoc
+              command="leave <project-name>"
+              description="Leaves a project that someone else has shared with you, removing your access."
+              icon={UserMinus}
+              example="dotenvnest leave my-api-server"
+            />
+
+            <CommandDoc
               command="logout"
               description="Logs you out of the CLI and clears your local authentication token."
               icon={LogIn}
