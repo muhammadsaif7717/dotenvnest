@@ -56,94 +56,54 @@
 
 ## 🖥️ CLI Tool
 
-DotEnvNest ships a powerful CLI with three commands — **pull**, **push**, and **run** — all authenticated with your email and password.
+DotEnvNest ships a powerful CLI with commands to **login**, **pull**, **push**, **find**, **share**, and **unshare** — all authenticated seamlessly via your browser.
 
 ### Installation
 
 ```bash
 # Install globally
 npm install -g dotenvnest
-
-# Or use directly via npx
-npx dotenvnest pull <project>
 ```
 
 ### Commands
 
+#### `login` — Authenticate the CLI
+Securely authenticates the CLI by opening your browser. Once you log in and enter your PIN, your terminal is authenticated!
+```bash
+dotenvnest login
+```
+
 #### `pull` — Download env vars from DotEnvNest
-
-Authenticates with your email & password, then writes the decrypted `.env` content to a local file.
-
+Downloads and decrypts the `.env` file from the specified project on DotEnvNest.
 ```bash
-dotenvnest pull <project>
-dotenvnest pull <project> --output .env.local
+dotenvnest pull <project-name>
+dotenvnest pull <project-name> -f .env.local
 ```
-
-| Option | Default | Description |
-|---|---|---|
-| `--output`, `-o` | `.env` | Output file path |
-| `--force` | — | Overwrite existing file without asking |
-
-**Example:**
-```bash
-dotenvnest pull my-app
-dotenvnest pull my-app --output .env.local
-```
-
----
 
 #### `push` — Upload a local env file to DotEnvNest
-
-Reads a local `.env` file, authenticates, and **upserts** it to DotEnvNest:
-- If the project **exists** (owned by you) → updates `envContent`
-- If the project **does not exist** → creates it automatically
-
+Reads a local `.env` file, encrypts it with your PIN, and uploads it to DotEnvNest.
 ```bash
-dotenvnest push <project>
-dotenvnest push <project> --file .env.local
+dotenvnest push <project-name>
+dotenvnest push <project-name> -f .env.staging
 ```
 
-| Option | Default | Description |
-|---|---|---|
-| `--file`, `-f` | `.env` | Source file to upload |
-| `--force` | — | Skip confirmation prompt |
-
-**Example:**
+#### `find` — Search your projects
+Lists your own projects and any projects that have been shared with you. You can optionally pass a query.
 ```bash
-dotenvnest push my-app
-dotenvnest push my-app --file .env.staging --force
+dotenvnest find
+dotenvnest find api
 ```
 
----
-
-#### `run` — Inject env vars into a process at runtime
-
-Fetches your encrypted env from the server using your **CLI API Key** and injects it into any child process — no local `.env` file needed.
-
+#### `share` & `unshare` — Manage Access
+Share a project directly from your terminal. Access can be either `read` or `edit`.
 ```bash
-dotenvnest run <project> -- <command>
+dotenvnest share my-api-server "colleague@example.com" --access edit
+dotenvnest unshare my-api-server "colleague@example.com"
 ```
 
-**Example:**
-```bash
-dotenvnest run my-app -- npm run dev
-dotenvnest run backend -- node server.js
-dotenvnest run api -- python manage.py runserver
-```
-
-> **Requires** `DOTENVNEST_API_KEY` — get yours from the **Account** page after logging in.
-
----
-
-### Environment Variables
-
-```bash
-# Target server (defaults to http://localhost:3000 for local dev)
-export DOTENVNEST_URL=https://your-instance.com
-
-# Required for the `run` command only
-export DOTENVNEST_API_KEY=<your-cli-api-key>
-```
+#### `docs` & `logout`
+- `dotenvnest docs`: Opens the full documentation in your browser.
+- `dotenvnest logout`: Clears your local authentication session.
 
 ---
 
