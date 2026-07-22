@@ -206,9 +206,9 @@ export default function DocsPage() {
                 Simply set the <code className="font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">DOTENVNEST_TOKEN</code> environment variable in your pipeline settings. The CLI will automatically use it for authentication.
               </p>
               <CodeBlock>
-# Example in a CI script
+{`# Example in a CI script
 export DOTENVNEST_TOKEN="your_cli_token_here"
-npx dotenvnest pull my-api-server
+npx dotenvnest pull my-api-server`}
               </CodeBlock>
               <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-4 italic">
                 * Tip: You can find your personal CLI token inside the ~/.dotenvnest-config.json file on your computer after logging in locally.
@@ -236,14 +236,14 @@ npx dotenvnest pull my-api-server
                   If you use the <strong>-f</strong> flag to push a variant, the CLI automatically maps it to a new project name in the cloud!
                 </p>
                 <CodeBlock>
-# Pushes to project "my-api"
+{`# Pushes to project "my-api"
 dotenvnest push my-api
 
 # Pushes to a new project named "my-api.local"
 dotenvnest push my-api -f .env.local
 
 # Pushes to a new project named "my-api.production"
-dotenvnest push my-api -f .env.production
+dotenvnest push my-api -f .env.production`}
                 </CodeBlock>
                 <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-4 italic">
                   * Tip: When you run <code>dotenvnest find</code>, you will clearly see all your variants listed as separate projects, keeping everything perfectly organized.
@@ -262,11 +262,11 @@ dotenvnest push my-api -f .env.production
                   If you run <code>dotenvnest pull backend</code>, the CLI gets confused: "Which backend do you want?" It will throw an error asking you to specify the owner. You can fix this by using the <strong>--owner</strong> flag.
                 </p>
                 <CodeBlock>
-# Pulls YOUR backend project
+{`# Pulls YOUR backend project
 dotenvnest pull backend
 
 # Pulls your FRIEND'S backend project
-dotenvnest pull backend --owner friend@email.com
+dotenvnest pull backend --owner friend@email.com`}
                 </CodeBlock>
                 <p className="text-sm text-zinc-500 dark:text-zinc-500 mt-4 italic">
                   * Note: The <code>--owner</code> flag works perfectly with <code>push</code>, <code>pull</code>, <code>view</code>, and <code>diff</code>.
@@ -285,11 +285,11 @@ dotenvnest pull backend --owner friend@email.com
                   Otherwise, the terminal will treat the second word as an invalid argument and throw a <strong>"too many arguments"</strong> error.
                 </p>
                 <CodeBlock>
-# ❌ This will throw an error
+{`# ❌ This will throw an error
 dotenvnest pull Developer Saif
 
 # ✅ This will work perfectly
-dotenvnest pull "Developer Saif"
+dotenvnest pull "Developer Saif"`}
                 </CodeBlock>
               </div>
             </div>
