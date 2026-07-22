@@ -105,31 +105,38 @@ export default function DocsPage() {
 
             <CommandDoc
               command="push <project-name>"
-              description="Encrypts and uploads your local .env file to the specified project on Dotenvnest."
+              description="Encrypts and uploads your local .env file. Pushing a variant like .env.local automatically creates a new project variant (e.g. project-name.local). Smartly detects shared projects automatically."
               icon={Upload}
               example="dotenvnest push my-api-server"
               options={[
                 { name: "-f, --file <filename>", desc: "Specify a different file to push (default: .env)" },
-                { name: "--owner <email>", desc: "Specify the owner email if pushing to a project shared with you" }
+                { name: "--owner <email>", desc: "Specify the owner email (only required if there is a name collision)" }
               ]}
             />
 
             <CommandDoc
               command="pull <project-name>"
-              description="Downloads and decrypts the .env file from the specified project on Dotenvnest."
+              description="Downloads and decrypts the .env file from the specified project. Smartly detects shared projects automatically."
               icon={CloudDownload}
               example="dotenvnest pull my-api-server"
               options={[
                 { name: "-f, --file <filename>", desc: "Specify a different file to output to (default: .env)" },
-                { name: "--owner <email>", desc: "Specify the owner email if pulling from a project shared with you" }
+                { name: "--owner <email>", desc: "Specify the owner email (only required if there is a name collision)" }
               ]}
             />
 
             <CommandDoc
               command="find [query]"
-              description="Searches for projects in your account and projects shared with you. If no query is provided, it lists all of your projects."
+              description="Searches for projects in your account and projects shared with you, displaying the owner's email for shared projects."
               icon={Search}
               example="dotenvnest find api"
+            />
+
+            <CommandDoc
+              command="del <project-name>"
+              description="Permanently deletes a project that you own. Shared projects cannot be deleted."
+              icon={UserMinus}
+              example="dotenvnest del my-api-server"
             />
 
             <CommandDoc

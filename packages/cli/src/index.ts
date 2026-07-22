@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
 import chalk from "chalk";
-import { loginCommand } from "./commands/login";
-import { pushCommand } from "./commands/push";
-import { pullCommand } from "./commands/pull";
+import { Command } from "commander";
+import { delCommand } from "./commands/del";
+import { docsCommand } from "./commands/docs";
 import { findCommand } from "./commands/find";
+import { loginCommand } from "./commands/login";
+import { logoutCommand } from "./commands/logout";
+import { pullCommand } from "./commands/pull";
+import { pushCommand } from "./commands/push";
 import { shareCommand } from "./commands/share";
 import { unshareCommand } from "./commands/unshare";
-import { docsCommand } from "./commands/docs";
-import { logoutCommand } from "./commands/logout";
 
 const program = new Command();
 
@@ -34,6 +35,7 @@ shareCommand(program);
 unshareCommand(program);
 docsCommand(program);
 logoutCommand(program);
+delCommand(program);
 
 program.parse(process.argv);
 

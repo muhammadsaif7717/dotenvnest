@@ -74,24 +74,30 @@ dotenvnest login
 ```
 
 #### `pull` — Download env vars from DotEnvNest
-Downloads and decrypts the `.env` file from the specified project on DotEnvNest.
+Downloads and decrypts the `.env` file from the specified project on DotEnvNest. Smartly detects if the project is shared with you without needing `--owner` in most cases.
 ```bash
 dotenvnest pull <project-name>
 dotenvnest pull <project-name> -f .env.local
 ```
 
 #### `push` — Upload a local env file to DotEnvNest
-Reads a local `.env` file, encrypts it with your PIN, and uploads it to DotEnvNest.
+Reads a local `.env` file, encrypts it with your PIN, and uploads it to DotEnvNest. Pushing a variant like `.env.local` automatically creates a new project variant `project-name.local`.
 ```bash
 dotenvnest push <project-name>
-dotenvnest push <project-name> -f .env.staging
+dotenvnest push <project-name> -f .env.local
 ```
 
 #### `find` — Search your projects
-Lists your own projects and any projects that have been shared with you. You can optionally pass a query.
+Lists your own projects and any projects that have been shared with you, along with the owner's email.
 ```bash
 dotenvnest find
 dotenvnest find api
+```
+
+#### `del` (or `delete`) — Delete a project
+Permanently deletes a project that you own.
+```bash
+dotenvnest del <project-name>
 ```
 
 #### `share` & `unshare` — Manage Access

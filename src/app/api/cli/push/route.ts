@@ -38,35 +38,69 @@ export async function POST(req: NextRequest) {
     let targetEnv = null;
     let targetPin = decryptWithGlobalSecret(user.encrypted_user_secret);
 
+    const ownEnv = await collection.findOne({
+      userId: user._id.toString(),
+      projectName: projectName
+    });
+
+    const sharedEnvCursor = await collection.find({
+      projectName: projectName,
+      "sharedWith.email": user.email
+    }).toArray();
+
+    // If no specific owner provided, but there are multiple possibilities
+    if (!ownerEmail && ownEnv && sharedEnvCursor.length > 0) {
+      return NextResponse.json({ error: "Multiple projects with this name found (Owned and Shared). Please specify --owner <email>." }, { status: 400 });
+    }
+    if (!ownerEmail && sharedEnvCursor.length > 1) {
+      return NextResponse.json({ error: "Multiple shared projects with this name found. Please specify --owner <email>." }, { status: 400 });
+    }
+
     if (ownerEmail && ownerEmail !== user.email) {
-      // Trying to push to a shared project
+      // Trying to push to a specific shared project
       targetEnv = await collection.findOne({
         projectName: projectName,
-        "sharedWith.email": user.email
+        "sharedWith.email": user.email,
+        // Actually we don't store ownerEmail in env, we store userId.
+        // So we need to find the owner's userId from ownerEmail.
       });
+      // A better way is to find owner's user ID first.
+    }
 
-      if (!targetEnv) {
-        return NextResponse.json({ error: "Shared project not found." }, { status: 404 });
+    // Let's rewrite the detection logic cleanly:
+    
+    // Find owner user ID if ownerEmail is provided
+    let specifiedOwnerId = null;
+    if (ownerEmail && ownerEmail !== user.email) {
+      const specifiedOwner = await usersCollection.findOne({ email: ownerEmail });
+      if (!specifiedOwner) {
+        return NextResponse.json({ error: "Specified owner not found." }, { status: 404 });
       }
+      specifiedOwnerId = specifiedOwner._id.toString();
+    }
 
-      // Check if user has edit access
+    if (specifiedOwnerId) {
+      targetEnv = await collection.findOne({ projectName, userId: specifiedOwnerId, "sharedWith.email": user.email });
+      if (!targetEnv) return NextResponse.json({ error: "Shared project not found." }, { status: 404 });
+    } else if (ownEnv) {
+      targetEnv = ownEnv;
+    } else if (sharedEnvCursor.length === 1) {
+      targetEnv = sharedEnvCursor[0];
+    } else if (ownerEmail && ownerEmail === user.email && ownEnv) {
+      targetEnv = ownEnv;
+    }
+
+    if (targetEnv && targetEnv.userId !== user._id.toString()) {
+      // It's a shared project
       const share = targetEnv.sharedWith.find((s: any) => s.email === user.email);
       if (!share || share.role !== "editor") {
         return NextResponse.json({ error: "You only have read access to this shared project." }, { status: 403 });
       }
-
-      // We need the owner's PIN to encrypt the content for their project
       const owner = await usersCollection.findOne({ _id: targetEnv.userId });
       if (!owner || !owner.encrypted_user_secret) {
         return NextResponse.json({ error: "Owner PIN not found." }, { status: 500 });
       }
       targetPin = decryptWithGlobalSecret(owner.encrypted_user_secret);
-    } else {
-      // Pushing to own project
-      targetEnv = await collection.findOne({
-        userId: user._id.toString(),
-        projectName: projectName
-      });
     }
 
     const encryptedContent = encryptWithUserPin(envContent.trim(), targetPin);

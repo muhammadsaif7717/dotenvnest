@@ -20,7 +20,13 @@ export function pullCommand(program: Command) {
         return;
       }
 
-      const finalProjectName = projectName.trim();
+      let finalProjectName = projectName.trim();
+      if (options.file && options.file.startsWith(".env.")) {
+        const suffix = options.file.substring(5);
+        if (suffix) {
+          finalProjectName = `${finalProjectName}.${suffix}`;
+        }
+      }
       const envPath = path.resolve(process.cwd(), options.file);
       
       // Warn about overwrite

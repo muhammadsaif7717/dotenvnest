@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
 import clientPromise, { dbName } from "@/lib/connectDb";
 
 export async function GET(req: NextRequest) {
@@ -38,7 +39,10 @@ export async function GET(req: NextRequest) {
 
     // We need to fetch owner email for shared projects
     const ownerIds = [...new Set(sharedProjectsCursor.map(env => env.userId))];
-    const owners = await usersCollection.find({ _id: { $in: ownerIds } }).toArray();
+    const objectIds = ownerIds.map(id => {
+      try { return new ObjectId(id as string); } catch (e) { return null; }
+    }).filter(id => id !== null);
+    const owners = await usersCollection.find({ _id: { $in: objectIds } }).toArray();
     const ownerMap = owners.reduce((acc, owner) => {
       acc[owner._id.toString()] = owner.email;
       return acc;
