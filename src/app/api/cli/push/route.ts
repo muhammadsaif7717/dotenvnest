@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
 import clientPromise, { dbName } from "@/lib/connectDb";
 import { encryptWithUserPin, decryptWithGlobalSecret } from "@/lib/crypto";
 
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest) {
       if (!share || share.role !== "editor") {
         return NextResponse.json({ error: "You only have read access to this shared project." }, { status: 403 });
       }
-      const owner = await usersCollection.findOne({ _id: targetEnv.userId });
+      const owner = await usersCollection.findOne({ _id: new ObjectId(targetEnv.userId as string) });
       if (!owner || !owner.encrypted_user_secret) {
         return NextResponse.json({ error: "Owner PIN not found." }, { status: 500 });
       }
