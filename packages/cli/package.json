@@ -1,6 +1,6 @@
 {
   "name": "dotenvnest",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A secure CLI to manage your .env files",
   "main": "dist/index.js",
   "bin": {
