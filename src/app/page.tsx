@@ -642,11 +642,11 @@ function EnvItem({
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Badge
                   variant="secondary"
-                  className="text-[9px] font-mono font-medium text-zinc-555 dark:text-zinc-455 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-800/40 flex items-center gap-1 normal-case shrink-0"
+                  className="text-[9px] font-mono font-medium text-zinc-555 dark:text-zinc-455 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-800/40 flex items-center gap-1 normal-case max-w-full"
                 >
-                  <User className="w-2.5 h-2.5 text-zinc-400" />
-                  <span>Shared by:</span>
-                  <span className="font-semibold text-zinc-750 dark:text-zinc-250">{env.ownerEmail}</span>
+                  <User className="w-2.5 h-2.5 text-zinc-400 shrink-0" />
+                  <span className="shrink-0 hidden sm:inline">Shared by:</span>
+                  <span className="font-semibold text-zinc-750 dark:text-zinc-250 truncate block">{env.ownerEmail}</span>
                 </Badge>
                 <Badge
                   variant="outline"
