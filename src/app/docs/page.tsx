@@ -126,14 +126,14 @@ export default function DocsPage() {
             command="login"
             description="Authenticates the CLI securely via your browser. If you are already logged in to the web application, it authenticates automatically."
             icon={LogIn}
-            example="dotenvnest login"
+            example={`dotenvnest login\n# or\nden login`}
           />
 
           <CommandDoc
             command="push <project-name>"
             description="Encrypts and uploads your local .env file. Pushing a variant like .env.local automatically creates a new project variant (e.g. project-name.local). Smartly detects shared projects automatically."
             icon={Upload}
-            example="dotenvnest push my-api-server"
+            example={`dotenvnest push my-api-server\n# or\nden push my-api-server`}
             options={[
               {
                 name: "-f, --file <filename>",
@@ -150,7 +150,7 @@ export default function DocsPage() {
             command="pull <project-name>"
             description="Downloads and decrypts the .env file from the specified project. Smartly detects shared projects automatically."
             icon={CloudDownload}
-            example="dotenvnest pull my-api-server"
+            example={`dotenvnest pull my-api-server\n# or\nden pull my-api-server`}
             options={[
               {
                 name: "-f, --file <filename>",
@@ -167,14 +167,14 @@ export default function DocsPage() {
             command="find [query]"
             description="Searches for projects in your account and projects shared with you, displaying the owner's email for shared projects."
             icon={Search}
-            example="dotenvnest find api"
+            example={`dotenvnest find api\n# or\nden find api`}
           />
 
           <CommandDoc
             command="view <project-name>"
             description="Securely prints the environment variables of a project in your terminal without saving a local file."
             icon={Search}
-            example="dotenvnest view my-api-server"
+            example={`dotenvnest view my-api-server\n# or\nden view my-api-server`}
             options={[
               {
                 name: "--owner <email>",
@@ -187,7 +187,7 @@ export default function DocsPage() {
             command="diff <project-name>"
             description="Compares your local .env file with the one saved in the cloud, highlighting added, removed, or changed variables."
             icon={Search}
-            example="dotenvnest diff my-api-server"
+            example={`dotenvnest diff my-api-server\n# or\nden diff my-api-server`}
             options={[
               {
                 name: "-f, --file <filename>",
@@ -204,14 +204,14 @@ export default function DocsPage() {
             command="del <project-name>"
             description="Permanently deletes a project that you own. Shared projects cannot be deleted."
             icon={UserMinus}
-            example="dotenvnest del my-api-server"
+            example={`dotenvnest del my-api-server\n# or\nden del my-api-server`}
           />
 
           <CommandDoc
             command="share <project-name> <emails>"
             description="Shares a project with one or more users (comma-separated). The users must have a Dotenvnest account."
             icon={Share2}
-            example='dotenvnest share my-api-server "user1@example.com, user2@example.com" --access edit'
+            example={`dotenvnest share my-api-server "user1@example.com, user2@example.com" --access edit\n# or\nden share my-api-server "user1@example.com, user2@example.com" --access edit`}
             options={[
               {
                 name: "--access <level>",
@@ -224,21 +224,21 @@ export default function DocsPage() {
             command="unshare <project-name> <emails>"
             description="Revokes access to a shared project from one or more users (comma-separated)."
             icon={UserMinus}
-            example='dotenvnest unshare my-api-server "user1@example.com, user2@example.com"'
+            example={`dotenvnest unshare my-api-server "user1@example.com, user2@example.com"\n# or\nden unshare my-api-server "user1@example.com, user2@example.com"`}
           />
 
           <CommandDoc
             command="leave <project-name>"
             description="Leaves a project that someone else has shared with you, removing your access."
             icon={UserMinus}
-            example="dotenvnest leave my-api-server"
+            example={`dotenvnest leave my-api-server\n# or\nden leave my-api-server`}
           />
 
           <CommandDoc
             command="logout"
             description="Logs you out of the CLI and clears your local authentication token."
             icon={LogIn}
-            example="dotenvnest logout"
+            example={`dotenvnest logout\n# or\nden logout`}
           />
         </section>
 
