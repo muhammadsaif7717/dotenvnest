@@ -73,6 +73,8 @@ Securely authenticates the CLI by opening your browser. If you are already logge
 
 ```bash
 dotenvnest login
+# or
+den login
 ```
 
 #### `pull` — Download env vars from DotEnvNest
@@ -82,6 +84,9 @@ Downloads and decrypts the `.env` file from the specified project on DotEnvNest.
 ```bash
 dotenvnest pull <project-name>
 dotenvnest pull <project-name> -f .env.local
+# or
+den pull <project-name>
+den pull <project-name> -f .env.local
 ```
 
 #### `push` — Upload a local env file to DotEnvNest
@@ -91,6 +96,9 @@ Reads a local `.env` file, encrypts it with your PIN, and uploads it to DotEnvNe
 ```bash
 dotenvnest push <project-name>
 dotenvnest push <project-name> -f .env.local
+# or
+den push <project-name>
+den push <project-name> -f .env.local
 ```
 
 #### `find` — Search your projects
@@ -100,6 +108,9 @@ Lists your own projects and any projects that have been shared with you, along w
 ```bash
 dotenvnest find
 dotenvnest find api
+# or
+den find
+den find api
 ```
 
 #### `view` & `diff` — Inspect without downloading
@@ -110,6 +121,9 @@ dotenvnest find api
 ```bash
 dotenvnest view <project-name>
 dotenvnest diff <project-name>
+# or
+den view <project-name>
+den diff <project-name>
 ```
 
 #### `del` (or `delete`) — Delete a project
@@ -118,6 +132,8 @@ Permanently deletes a project that you own.
 
 ```bash
 dotenvnest del <project-name>
+# or
+den del <project-name>
 ```
 
 #### `share` & `unshare` — Manage Access
@@ -127,6 +143,9 @@ Share a project directly from your terminal. Access can be either `read` or `edi
 ```bash
 dotenvnest share my-api-server "colleague@example.com, manager@example.com" --access edit
 dotenvnest unshare my-api-server "colleague@example.com, manager@example.com"
+# or
+den share my-api-server "colleague@example.com, manager@example.com" --access edit
+den unshare my-api-server "colleague@example.com, manager@example.com"
 ```
 
 #### `leave` (or `exit`) — Leave a shared project
@@ -135,6 +154,8 @@ Removes your access from a project that someone else has shared with you.
 
 ```bash
 dotenvnest leave <project-name>
+# or
+den leave <project-name>
 ```
 
 ### 🧠 Advanced Usage & Tips
@@ -198,8 +219,8 @@ _(You can find your token inside `~/.dotenvnest-config.json` after logging in on
 
 #### `docs` & `logout`
 
-- `dotenvnest docs`: Opens the full documentation in your browser.
-- `dotenvnest logout`: Clears your local authentication session.
+- `dotenvnest docs` or `den docs`: Opens the full documentation in your browser.
+- `dotenvnest logout` or `den logout`: Clears your local authentication session.
 
 ---
 
