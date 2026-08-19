@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
+import Fuse from "fuse.js";
 import { api, getApiError } from "../utils/api";
 import { readConfig } from "../utils/config";
 
@@ -22,10 +23,27 @@ export function findCommand(program: Command) {
       const spinner = ora("Searching projects...").start();
 
       try {
-        const res = await api.get("/find", { params: { query } });
+        const res = await api.get("/find");
         spinner.stop();
 
-        const { ownedProjects, sharedProjects } = res.data;
+        let { ownedProjects, sharedProjects } = res.data;
+
+        if (query) {
+          const fuseOptions = {
+            keys: ["name"],
+            threshold: 0.4,
+          };
+          
+          if (ownedProjects.length > 0) {
+            const fuseOwned = new Fuse(ownedProjects, fuseOptions);
+            ownedProjects = fuseOwned.search(query).map(result => result.item);
+          }
+          
+          if (sharedProjects.length > 0) {
+            const fuseShared = new Fuse(sharedProjects, fuseOptions);
+            sharedProjects = fuseShared.search(query).map(result => result.item);
+          }
+        }
 
         if (ownedProjects.length === 0 && sharedProjects.length === 0) {
           console.log(

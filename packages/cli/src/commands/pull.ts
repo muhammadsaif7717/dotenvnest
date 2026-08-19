@@ -1,9 +1,10 @@
-import { Command } from "commander";
 import chalk from "chalk";
-import ora from "ora";
+import { Command } from "commander";
 import fs from "fs";
-import path from "path";
 import inquirer from "inquirer";
+import Fuse from "fuse.js";
+import ora from "ora";
+import path from "path";
 import { api, getApiError } from "../utils/api";
 import { readConfig } from "../utils/config";
 
@@ -25,8 +26,8 @@ export function pullCommand(program: Command) {
       if (!config.token) {
         console.log(
           chalk.red("You are not logged in. Please run ") +
-            chalk.cyan("dotenvnest login") +
-            chalk.red(" first.")
+          chalk.cyan("dotenvnest login") +
+          chalk.red(" first.")
         );
         return;
       }
@@ -62,6 +63,47 @@ export function pullCommand(program: Command) {
       ).start();
 
       try {
+        const findRes = await api.get("/find");
+        const { ownedProjects, sharedProjects } = findRes.data;
+        const allProjects = [...ownedProjects, ...sharedProjects];
+
+        // 1. Exact or case-insensitive match
+        const exactMatch = allProjects.find(
+          (p: any) => p.name.toLowerCase() === finalProjectName.toLowerCase()
+        );
+
+        if (exactMatch) {
+          finalProjectName = exactMatch.name;
+        } else {
+          // 2. Fuzzy search
+          const fuse = new Fuse(allProjects, {
+            keys: ["name"],
+            threshold: 0.4,
+          });
+          const results = fuse.search(finalProjectName);
+
+          if (results.length > 0) {
+            spinner.stop();
+            const topMatch = results[0].item.name;
+            const { confirmFuzzy } = await inquirer.prompt([
+              {
+                type: "confirm",
+                name: "confirmFuzzy",
+                message: `Project '${finalProjectName}' not found. Did you mean '${chalk.cyan(topMatch)}'?`,
+                default: true,
+              },
+            ]);
+
+            if (confirmFuzzy) {
+              finalProjectName = topMatch;
+              spinner.start(`Pulling project ${chalk.bold(finalProjectName)}...`);
+            } else {
+              console.log(chalk.yellow("Pull cancelled."));
+              return;
+            }
+          }
+        }
+
         const res = await api.get("/pull", {
           params: {
             projectName: finalProjectName,

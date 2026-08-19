@@ -1,10 +1,11 @@
 {
   "name": "dotenvnest",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A secure CLI to manage your .env files",
   "main": "dist/index.js",
   "bin": {
-    "dotenvnest": "dist/index.js"
+    "dotenvnest": "dist/index.js",
+    "den": "dist/index.js"
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs --clean",
@@ -21,6 +22,7 @@
     "chalk": "^4.1.2",
     "commander": "^15.0.0",
     "dotenv": "^17.4.2",
+    "fuse.js": "^7.5.0",
     "inquirer": "^8.2.7",
     "open": "^8.4.2",
     "ora": "^5.4.1"
