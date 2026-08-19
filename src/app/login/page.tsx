@@ -187,7 +187,7 @@ export default function LoginPage() {
         router.push("/");
       }
       router.refresh();
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setIsLoading(false);

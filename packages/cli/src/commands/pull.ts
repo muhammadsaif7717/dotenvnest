@@ -26,8 +26,8 @@ export function pullCommand(program: Command) {
       if (!config.token) {
         console.log(
           chalk.red("You are not logged in. Please run ") +
-          chalk.cyan("dotenvnest login") +
-          chalk.red(" first.")
+            chalk.cyan("dotenvnest login") +
+            chalk.red(" first.")
         );
         return;
       }
@@ -96,7 +96,9 @@ export function pullCommand(program: Command) {
 
             if (confirmFuzzy) {
               finalProjectName = topMatch;
-              spinner.start(`Pulling project ${chalk.bold(finalProjectName)}...`);
+              spinner.start(
+                `Pulling project ${chalk.bold(finalProjectName)}...`
+              );
             } else {
               console.log(chalk.yellow("Pull cancelled."));
               return;

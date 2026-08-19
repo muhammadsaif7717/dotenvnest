@@ -33,15 +33,19 @@ export function findCommand(program: Command) {
             keys: ["name"],
             threshold: 0.4,
           };
-          
+
           if (ownedProjects.length > 0) {
             const fuseOwned = new Fuse(ownedProjects, fuseOptions);
-            ownedProjects = fuseOwned.search(query).map(result => result.item);
+            ownedProjects = fuseOwned
+              .search(query)
+              .map((result) => result.item);
           }
-          
+
           if (sharedProjects.length > 0) {
             const fuseShared = new Fuse(sharedProjects, fuseOptions);
-            sharedProjects = fuseShared.search(query).map(result => result.item);
+            sharedProjects = fuseShared
+              .search(query)
+              .map((result) => result.item);
           }
         }
 

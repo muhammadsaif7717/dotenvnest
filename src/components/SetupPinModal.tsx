@@ -179,7 +179,7 @@ export function SetupPinModal({ open }: SetupPinModalProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to setup PIN");
       router.refresh();
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred"
       );

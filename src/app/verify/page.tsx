@@ -228,7 +228,7 @@ function VerifyContent() {
       }
 
       setSuccess("A new verification code has been sent to your email.");
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setIsResending(false);
@@ -257,7 +257,7 @@ function VerifyContent() {
 
       router.push("/");
       router.refresh();
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setIsLoading(false);

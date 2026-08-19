@@ -342,9 +342,9 @@ dotenvnest push my-api -f .env.production`}
               </p>
               <p className="text-zinc-600 dark:text-zinc-400 mb-4">
                 If you run <code>dotenvnest pull backend</code>, the CLI gets
-                confused: "Which backend do you want?" It will throw an error
-                asking you to specify the owner. You can fix this by using the{" "}
-                <strong>--owner</strong> flag.
+                confused: &quot;Which backend do you want?&quot; It will throw
+                an error asking you to specify the owner. You can fix this by
+                using the <strong>--owner</strong> flag.
               </p>
               <CodeBlock>
                 {`# Pulls YOUR backend project
@@ -375,8 +375,8 @@ dotenvnest pull backend --owner friend@email.com`}
               </p>
               <p className="text-zinc-600 dark:text-zinc-400 mb-4">
                 Otherwise, the terminal will treat the second word as an invalid
-                argument and throw a <strong>"too many arguments"</strong>{" "}
-                error.
+                argument and throw a{" "}
+                <strong>&quot;too many arguments&quot;</strong> error.
               </p>
               <CodeBlock>
                 {`# ❌ This will throw an error
